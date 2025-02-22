@@ -41,3 +41,6 @@ Route::get('upload_image_file', 'FileUploadController@index');
 Route::post('upload_image_file', 'FileUploadController@uploadImage');
 
 
+
+Route::post('chatbot', 'StudentController@chatBot');
+

@@ -31,6 +31,57 @@ class StudentController extends Controller {
 
 		return view('student.index',compact('religion_list','citizenship_list','gender_list','civil_status_list'));
 	}
+	public function chatBot(Request $request)
+	{
+		session_start(); // Start a session to store conversation state
+	
+		$question = strtolower(trim($request->input('question')));
+		$conversation_state = isset($_SESSION['chat_state']) ? $_SESSION['chat_state'] : '';
+	
+		// Predefined responses
+		$responses = [
+			'family problem' => [
+				"I'm really sorry to hear that. Do you want to talk about what's been bothering you?",
+				"That sounds really stressful. Have you tried talking to someone you trust, like a teacher or counselor?",
+				"It's okay to feel overwhelmed. Sometimes writing down your feelings before talking to someone can help.",
+				"Would you like some advice on how to express your feelings to someone who can help?"
+			],
+			'help me' => [
+				"Of course! I'm here to listen. Can you tell me a bit more about your situation?",
+				"I'm happy to help. Are you looking for advice or just someone to listen?",
+				"Would you like me to suggest some steps to handle this situation?"
+			],
+			'recommendation' => [
+				"Here are some things you can try:  
+				1️⃣ Find a safe space to talk about your feelings.  
+				2️⃣ Write down your thoughts before discussing them.  
+				3️⃣ Reach out to a school counselor or trusted teacher.",
+				"You can try mindfulness exercises to reduce stress. Would you like some breathing techniques?",
+				"Sometimes talking to a friend who understands can make a big difference. Have you tried that?"
+			]
+		];
+	
+		$answer = "I'm here to help. Can you describe your concern in more detail?";
+	
+		// Detecting previous conversation state
+		if ($conversation_state === 'family_problem') {
+			$answer = $responses['help me'][array_rand($responses['help me'])]; // Random response from 'help me'
+		} elseif ($conversation_state === 'help_me') {
+			$answer = $responses['recommendation'][array_rand($responses['recommendation'])]; // Random recommendation
+		} else {
+			foreach ($responses as $keyword => $responseArray) {
+				if (strpos($question, $keyword) !== false) {
+					$_SESSION['chat_state'] = $keyword; // Store conversation state
+					$answer = $responseArray[array_rand($responseArray)];
+					break;
+				}
+			}
+		}
+	
+		return response()->json(['response' => $answer]);
+	}
+	
+
 
 
 	public function createPds()

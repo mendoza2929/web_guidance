@@ -1,12 +1,29 @@
+@extends('site/layouts/main')
+
+
+@stop
+
+
+@section('content')
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta charset="UTF-8">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Index - Bootslander Bootstrap Template</title>
-  <meta name="description" content="">
-  <meta name="keywords" content="">
+  <meta name="keywords" content="" />
+  <meta name="author" content="" />
+  <meta name="description" content="" />
+  <meta name="google-site-verification" content="">
+  <meta name="DC.title" content="Laravel 5 Starter Site">
+  <meta name="DC.subject" content="">
+  <meta name="DC.creator" content="">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
   <!-- Favicons -->
   {{-- <link href="assets/img/favicon.png" rel="icon"> --}}
@@ -54,6 +71,122 @@
       max-height: none!important;
     margin-right: none!important;
     }
+
+    body { font-family: Arial, sans-serif; }
+
+/* Floating Chat Button */
+.chat-icon {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #007bff;
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    cursor: pointer;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Chat Popup */
+.chat-container {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 350px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+    display: none;
+    flex-direction: column;
+}
+
+/* Chat Header */
+.chat-header {
+    background: #007bff;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-header .close-btn {
+    cursor: pointer;
+    font-size: 18px;
+}
+
+/* Chat Box */
+.chat-box {
+    height: 300px;
+    overflow-y: auto;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.message {
+    margin: 5px 0;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.bot {
+    background: #764141;
+    text-align: left;
+}
+
+.user {
+    background: #007bff;
+    color: white;
+    text-align: right;
+}
+
+/* Chat Input */
+.chat-input {
+    display: flex;
+    padding: 10px;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.chat-input button {
+    padding: 8px;
+    background: #007bff;
+    color: rgb(251, 251, 251);
+    border: none;
+    margin-left: 5px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.faq-list {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+#faq-select {
+    width: 100%;
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+
   </style>
 </head>
 
@@ -66,7 +199,7 @@
         <!-- Uncomment the line below if you also wish to use an image logo -->
         <!-- <img src="assets/img/logo.png" alt=""> -->
       <div>
-		<img src="{{asset('assets/img/gallery/logo.png')}}" alt="" width="300px" class="img-fluid logo-image">
+		  <img src="{{asset('assets/img/gallery/logo.png')}}" alt="" width="300px" class="img-fluid logo-image">
 	  </div>
       </a>
 
@@ -105,9 +238,46 @@
        
           <div class="col-lg-6  d-flex flex-column justify-content-center" data-aos="fade-in">
             <h1>GOLink</h1>
-            <p>A WEB-BASED SYSTEM FOR GUIDANCE OFFICE ACCUMULATIVE RECORDS AND AUTOMATED PRINT MANAGEMENT AT ANDRES SORIANO COLLEGES OF BISLIG, INC</p>
+            <p>A WEB-BASED SYSTEM FOR GUIDANCE OFFICE ACCUMULATIVE RECORDS AND AUTOMATED PRINT MANAGEMENT AT ANDRES SORIANO COLLEGES OF BISLIG, INCs</p>
             <div class="d-flex">
+              <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
+              <div class="chat-icon" id="chat-icon">💬</div>
 
+              <!-- Chat Popup -->
+              <div class="chat-container" id="chat-container">
+                <div class="chat-header">
+                    Chatbot
+                    <span class="close-btn" id="close-btn">&times;</span>
+                </div>
+                <div class="chat-box" id="chat-box"></div>
+            
+                <!-- FAQ Section -->
+                <div class="faq-list">
+                  <p><strong>Common Student Concerns:</strong></p>
+                  <select id="faq-select">
+                      <option value="">-- Select a concern --</option>
+                      <option value="I feel stressed with schoolwork.">I feel stressed with schoolwork.</option>
+                      <option value="I have trouble focusing on studies.">I have trouble focusing on studies.</option>
+                      <option value="I am feeling anxious or sad.">I am feeling anxious or sad.</option>
+                      <option value="I am struggling with time management.">I am struggling with time management.</option>
+                      <option value="I have issues with my classmates.">I have issues with my classmates.</option>
+                      <option value="I need advice on career choices.">I need advice on career choices.</option>
+                      <option value="I want to talk to a real counselor.">I want to talk to a real counselor.</option>
+                      <option value="I have family problems.">I have family problems.</option>
+                  </select>
+              </div>
+              
+              
+            
+                <form id="chatBotForm">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}" />
+                    <div class="chat-input">
+                        <input type="text" id="user-input" name="question" placeholder="Type a message..." autocomplete="off">
+                        <button type="submit" id="send-btn">Send</button>
+                    </div>
+                </form>
+            </div>
+            
             </div>
           </div>
 
@@ -265,11 +435,61 @@
 
 
 
+@section('scripts')
 <script>
    $(document).ready(function () {
         $("#navigateButton").click(function () {
             window.location.href = "/studentForm"; // Redirect to the Laravel route
         });
+        $("#chat-icon").click(function () {
+        $("#chat-container").fadeToggle();
+    });
+
+    $("#close-btn").click(function () {
+        $("#chat-container").fadeOut();
+    });
+
+    // Handle form submission
+    $("#chatBotForm").submit(function (event) {
+        event.preventDefault();
+        sendMessage();
+    });
+
+    $("#faq-select").change(function() {
+        let selectedQuestion = $(this).val();
+        if (selectedQuestion !== "") {
+            $("#user-input").val(selectedQuestion); // Set question in input
+            sendMessage(); // Send question
+            $(this).val(""); // Reset dropdown after selection
+        }
+    });
+    function sendMessage() {
+        let userMessage = $("#user-input").val().trim();
+        if (userMessage === "") return;
+
+        $("#chat-box").append(`<div class="message user">${userMessage}</div>`);
+        $("#user-input").val(""); // Clear input field
+
+        let formData = new FormData();
+        formData.append("_token", "{{ csrf_token() }}"); // Add CSRF token
+        formData.append("question", userMessage); // Add user message manually
+
+        $.ajax({
+            url: "{{ url('chatbot') }}",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                $("#chat-box").append(`<div class="message bot">${response.response}</div>`);
+                $(".chat-box").scrollTop($(".chat-box")[0].scrollHeight);
+            },
+            error: function () {
+                $("#chat-box").append(`<div class="message bot">Sorry, something went wrong.</div>`);
+            }
+        });
+    }
+
     });
 </script>
 
@@ -283,7 +503,8 @@
 
   <!-- Main JS File -->
   <script src="assets/js/main.js"></script>
-
+</script>
+@stop
 </body>
 
 </html>
