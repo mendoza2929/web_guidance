@@ -1,7 +1,10 @@
 <?php namespace App\Http\Controllers;
 
+use App\ChatbotConversation;
 use App\Citizenship;
 use App\CivilStatus;
+use App\Classification;
+use App\ClassificationLevel;
 use App\EducationalBackground;
 use App\FamilyBackground;
 use App\Gender;
@@ -10,11 +13,13 @@ use App\Http\Controllers\Controller;
 use App\OtherSurvey;
 use App\Person;
 use App\Religion;
+use App\SchoolDepartment;
 use App\Student;
 use App\Survey;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 class StudentController extends Controller {
 
 	/**
@@ -27,9 +32,22 @@ class StudentController extends Controller {
 		$religion_list = Religion::all();
 		$citizenship_list = Citizenship::all();
 		$civil_status_list = CivilStatus::all();
+
+
+		$gen_user = Auth::user()->id;
+
+		$user = User::find($gen_user);
+
+		if($user->is_new == 1){
+			return view('student.index',compact('religion_list','citizenship_list','gender_list','civil_status_list'));
+		}else{
+			return view('student.student_portal');
+		}
+
+
 		
 
-		return view('student.index',compact('religion_list','citizenship_list','gender_list','civil_status_list'));
+		// return view('student.index',compact('religion_list','citizenship_list','gender_list','civil_status_list'));
 	}
 	public function chatBot(Request $request)
 	{
@@ -40,11 +58,38 @@ class StudentController extends Controller {
 	
 		// Predefined responses
 		$responses = [
+			"hello" => "Hi there! How can I help you?",
+			"who are you" => "I am a chatbot for GOLink.",
 			'family problem' => [
 				"I'm really sorry to hear that. Do you want to talk about what's been bothering you?",
 				"That sounds really stressful. Have you tried talking to someone you trust, like a teacher or counselor?",
 				"It's okay to feel overwhelmed. Sometimes writing down your feelings before talking to someone can help.",
 				"Would you like some advice on how to express your feelings to someone who can help?"
+			],
+			'stress' => [
+				"Feeling stressed with school or work is common. Would you like some study tips or relaxation techniques? (Yes/No)",
+			],
+			'yes' => [
+				"Great! Would you prefer study tips or relaxation techniques?",
+			],
+			'no' => [
+				"That's okay! If you ever need advice, feel free to ask. Take care!",
+			],
+			'study tips' => [
+				"Here are some study tips:  
+				📌 Break tasks into small, manageable parts.  
+				⏳ Use the Pomodoro technique (25 min study, 5 min break).  
+				📝 Make a study schedule and stick to it.  
+				🎧 Try listening to instrumental music while studying.  
+				✍️ Take notes in your own words for better understanding.",
+			],
+			'relaxation techniques' => [
+				"Here are some relaxation techniques:  
+				🌿 Try deep breathing exercises – inhale for 4 seconds, hold for 4, exhale for 4.  
+				🧘 Practice mindfulness or meditation.  
+				🚶 Take a short walk or stretch to clear your mind.  
+				🎶 Listen to calming music or nature sounds.  
+				☕ Drink a warm tea and take a moment to breathe."
 			],
 			'help me' => [
 				"Of course! I'm here to listen. Can you tell me a bit more about your situation?",
@@ -64,15 +109,26 @@ class StudentController extends Controller {
 		$answer = "I'm here to help. Can you describe your concern in more detail?";
 	
 		// Detecting previous conversation state
-		if ($conversation_state === 'family_problem') {
-			$answer = $responses['help me'][array_rand($responses['help me'])]; // Random response from 'help me'
-		} elseif ($conversation_state === 'help_me') {
-			$answer = $responses['recommendation'][array_rand($responses['recommendation'])]; // Random recommendation
+		if ($conversation_state === 'stress') {
+			$_SESSION['chat_state'] = ''; // Reset state after response
+			$answer = "Would you like some study tips or relaxation techniques? (Yes/No)";
+		} elseif ($conversation_state === 'yes') {
+			$_SESSION['chat_state'] = ''; // Reset state
+			$answer = "Would you prefer study tips or relaxation techniques?";
+		} elseif ($conversation_state === 'no') {
+			$_SESSION['chat_state'] = ''; // Reset state
+			$answer = "That's okay! If you ever need advice, feel free to ask. Take care!";
 		} else {
 			foreach ($responses as $keyword => $responseArray) {
 				if (strpos($question, $keyword) !== false) {
 					$_SESSION['chat_state'] = $keyword; // Store conversation state
-					$answer = $responseArray[array_rand($responseArray)];
+					
+					// Check if response is an array or a single string
+					if (is_array($responseArray)) {
+						$answer = $responseArray[array_rand($responseArray)];
+					} else {
+						$answer = $responseArray;
+					}
 					break;
 				}
 			}
@@ -81,7 +137,6 @@ class StudentController extends Controller {
 		return response()->json(['response' => $answer]);
 	}
 	
-
 
 
 	public function createPds()
@@ -147,23 +202,28 @@ class StudentController extends Controller {
 		$emergency_contact = \Request::input('emergency_contact');
 
 
+		
+		$gen_user = Auth::user()->person_id;
+		$person = Person::find($gen_user);
 
-		$person = Person::create([
-			'first_name' => $first_name,
-			'last_name' => $last_name,
-			'email_address' => $student_email,
-			'middle_name' => $middle_name,
-			'date_input' => $today_date,
-			'gender_id' => $gender_id,
-			'civil_status_id' => $civil_status_id,
-			'citizenship_id' => $citizenship_id,
-			'mobile_number' => $student_mobile_no,
-			'address' => $address,
-			'place_of_birth' => $place_of_birth,
-			'religion_id' => $religion_id,
-			'birthdate' => $birthdate,
-			'incase_of_emergency' => $emergency_contact,
-		]);
+		if ($person) {
+			$person->update([
+				'first_name' => $first_name,
+				'last_name' => $last_name,
+				'email_address' => $student_email,
+				'middle_name' => $middle_name,
+				'date_input' => $today_date,
+				'gender_id' => $gender_id,
+				'civil_status_id' => $civil_status_id,
+				'citizenship_id' => $citizenship_id,
+				'mobile_number' => $student_mobile_no,
+				'address' => $address,
+				'place_of_birth' => $place_of_birth,
+				'religion_id' => $religion_id,
+				'birthdate' => $birthdate,
+				'incase_of_emergency' => $emergency_contact,
+			]);
+		}
 
 		$family_background = FamilyBackground::create([
 			'person_id' => $person->id,
@@ -223,21 +283,84 @@ class StudentController extends Controller {
 			'plan_after_hs' => $plan_after_hs,
 			'awards' => $award,
 		]);
-
-		$student = Student::create([
-			'person_id' => $person->id, 
-		]);
-		$users = User::create([
-			'person_id' => $person->id,
-			'name' => $person->last_name,
-			'role' => 'student',
-			'email' => $person->email_address, 
-			'password' => Hash::make($person->last_name)
-		]);
+		$user = User::where('person_id', $person->id)->first();
+		if ($user) {
+			$user->update([
+				'is_new' => 0,
+			]);
+		} 
 		
-		return response()->json(['success' => true, 'person' => $person, 'student' => $student, 'user' => $users, 'family_background' => $family_background, 'educational_background' => $educational_background, 'other_survey' => $other_survey, 'survey' => $survey]);
+		return response()->json(['success' => true, 'person' => $person,'family_background' => $family_background, 'educational_background' => $educational_background, 'other_survey' => $other_survey, 'survey' => $survey]);
 		
 	}
+
+	public function saveConversation(Request $request)
+    {
+        // Validate the incoming request
+       
+        // Save the conversation to the database
+		
+	
+
+        $conversation = new ChatbotConversation();
+        $conversation->response = $request->input('response');
+		$conversation->user_id = Auth::id();
+        $conversation->save();
+
+        return response()->json(['success' => 'Conversation saved successfully.']);
+    }
+
+	public function createStudent()
+	{
+		$first_name = \Request::input('first_name');
+		$middle_name = \Request::input('middle_name');
+		$last_name = \Request::input('last_name');
+		$email = \Request::input('email');
+		$classification_id = \Request::input('classification_id');
+		$school_department_id = \Request::input('school_department_id');
+		$classification_level_id = \Request::input('classification_level_id');
+		$password = \Request::input('password');
+		$role = \Request::input('role');
+
+
+		$person = new Person();
+		$person->first_name = $first_name;
+		$person->middle_name = $middle_name;
+		$person->last_name = $last_name;
+		$person->save();
+		$student = Student::firstOrCreate([
+			'person_id' => $person->id,
+		]);
+		$student->classification_id = $classification_id;
+		$student->school_department_id = $school_department_id;
+		$student->classification_level_id = $classification_level_id;
+		$student->save();
+
+		$user = User::firstOrCreate([
+			'person_id' => $person->id,
+		]);
+		$user->name = $first_name;
+		$user->email = $email;
+		$user->password = Hash::make($password);
+		$user->role = $role;
+		$user->is_new = 1;
+		$user->save();
+		return response()->json([
+			'success' => true,
+			'message' => 'Student created successfully.',
+		], 200);
+	}
+
+
+	public function getClassificationLevel($classification_id)
+    {
+		$classificationLevels = ClassificationLevel::where('classification_id', $classification_id)->get();
+		$school_departments = SchoolDepartment::where('classification_id', $classification_id)->get();
+        return response()->json([
+            'classification_levels' => $classificationLevels,
+            'school_departments' => $school_departments
+        ]);
+    }
 
 	/**
 	 * Show the form for creating a new resource.
@@ -258,7 +381,7 @@ class StudentController extends Controller {
 	{
 		//
 
-		dd($request->all());
+		// dd($request->all());
 	}
 
 	/**

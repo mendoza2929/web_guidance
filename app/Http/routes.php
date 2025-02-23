@@ -44,3 +44,12 @@ Route::post('upload_image_file', 'FileUploadController@uploadImage');
 
 Route::post('chatbot', 'StudentController@chatBot');
 
+
+
+Route::post('register/create_student', 'StudentController@createStudent');
+Route::post('save-conversation', 'StudentController@saveConversation');
+Route::get('/get/classification_data/{classification_id}', 'StudentController@getClassificationLevel');
+
+
+
+

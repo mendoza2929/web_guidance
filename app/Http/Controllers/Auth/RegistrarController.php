@@ -31,16 +31,19 @@ class RegisterController extends Controller
             'password' => 'required|string|min:6|confirmed',
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'user', // Default role
-        ]);
+        $user = new User();
+        $user->name = $request->name;
+        $user->student_no = $request->student_no;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        $user->role = 'student';
+        $user->is_new = 1;
+        $user->save();
+        
 
         Auth::login($user);
 
-        return redirect('/');
+        return redirect('/auth/login');
     }
 
 

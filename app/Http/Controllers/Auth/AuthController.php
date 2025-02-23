@@ -41,7 +41,7 @@ class AuthController extends Controller {
         //     'name' => 'required|name', 'password' => 'required',
         // ]);
 
-        $credentials = $request->only('name', 'password');
+        $credentials = $request->only('email', 'password');
 
         if ($this->auth->attempt($credentials, $request->has('remember')))
         {
@@ -49,9 +49,9 @@ class AuthController extends Controller {
         }
 
         return redirect($this->loginPath())
-                    ->withInput($request->only('name', 'remember'))
+                    ->withInput($request->only('email', 'remember'))
                     ->withErrors([
-                        'name' => $this->getFailedLoginMessage(),
+                        'email' => $this->getFailedLoginMessage(),
                     ]);
     }
 
