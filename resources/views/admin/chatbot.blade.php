@@ -135,42 +135,20 @@
             <div class="card-body">
               <div class="row flex-between-center">
                 <div class="col-md">
-                  <h5 class="mb-2 mb-md-0">Welcome Back Admin!</h5>
+                  <h5 class="mb-2 mb-md-0">GOLink AI CHAT BOT</h5>
                 </div>
               </div>
             </div>
           </div>
-          
-            <div class="row">
-              <div class="col-md-3">
-                  <label for="classification_id">Department Type</label>
-                  <select name="classification_id" id="classification_id" class="form-control">
-                      <option value="">Select Classification</option>
-                      @foreach ($classification_list as $classification)
-                          <option value="{{ $classification->id }}">{{ $classification->classification_name }}</option>
-                      @endforeach
-                  </select>
-              </div>
-          
-              <div class="col-md-3">
-                  <label for="classification_level_id">Level</label>
-                  <select name="classification_level_id" id="classification_level_id" class="form-control">
-
-                  </select>
-              </div>
-          </div>
-          
-          <br>
-
+    
           <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Student Personal Data Sheet</h5>
-                <table id="studentTable" class="table table-bordered">
+                <h5 class="card-title">GOLink AI Chat Bot Summary</h5>
+                <table id="chatBotTable" class="table table-bordered">
                     <thead>
                         <tr>
                             <th>Student Name</th>
-                            <th>Department Type</th>
-                            <th>Level</th>
+                            <th>AI Response</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -182,9 +160,9 @@
 
 
 
+
+
         
-          
-		  
 
 
 
@@ -194,13 +172,12 @@
 <script>
  var oTable;
  $(document).ready(function () {
-    var oTable = $("#studentTable").DataTable({
+    var oTable = $("#chatBotTable").DataTable({
         ajax: {
-            url: "{{ url('admin/student_pds') }}",
+            url: "{{ url('admin/chatbot_data') }}",
             type: "GET",
             data: function(d) {
-                d.classification_id = $('#classification_id').val();
-                d.classification_level_id = $('#classification_level_id').val();
+                
             },
             dataSrc: "",
         },
@@ -209,48 +186,13 @@
                 data: 'name',
             },
             {
-                data: 'classification',
+                data: 'response',
             },
-            {
-                data: 'level',
-            }
         ]
     });
 
 
-    $('#classification_id').on('change', function () {
-        var classificationId = $(this).val();
-        $('#classification_level_id').empty().append('<option value="">Loading...</option>');
 
-        if (classificationId) {
-            $.ajax({
-                url: "{{ url('get/classification_data/') }}/" + classificationId,
-                type: 'GET',
-                dataType: 'json',
-                success: function (data) {
-                    $('#classification_level_id').empty().append('<option value="">Select Level</option>');
-                    $.each(data.classification_levels, function (index, level) {
-                        $('#classification_level_id').append('<option value="' + level.id + '">' + level.level + '</option>');
-                    });
-                }
-            });
-        } else {
-            $('#classification_level_id').empty().append('<option value="">Select Classification Level</option>');
-        }
-
-        oTable.ajax.reload(); 
-    });
-
-
-    $('#classification_level_id').on('change', function () {
-        oTable.ajax.reload();
-    });
-
-    oTable.on("click", ".viewDetail", function() {
-        const person_id = $(this).data("person_id");
-        const url = "{{ url('admin/student_profile') }}?person_id=" + person_id;
-        window.open(url);
-    });
 });
 
 

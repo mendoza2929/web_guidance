@@ -135,7 +135,7 @@
             <div class="card-body">
               <div class="row flex-between-center">
                 <div class="col-md">
-                  <h5 class="mb-2 mb-md-0">Welcome Back Admin!</h5>
+                  <h5 class="mb-2 mb-md-0">Anecdotal</h5>
                 </div>
               </div>
             </div>
@@ -164,13 +164,15 @@
 
           <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Student Personal Data Sheet</h5>
+                <h5 class="card-title">Anecdotal Data Sheet</h5>
                 <table id="studentTable" class="table table-bordered">
                     <thead>
                         <tr>
                             <th>Student Name</th>
                             <th>Department Type</th>
                             <th>Level</th>
+                            <th>Image</th>
+                            <th>Summary</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -183,8 +185,26 @@
 
 
         
-          
-		  
+          <!-- Image Modal -->
+ <!-- Modal Structure -->
+<div id="imageModal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Anecdotal Image</h5>
+          </div>
+          <div class="modal-body text-center">
+              <img id="modalImage" src="" class="img-fluid" alt="Anecdotal Image">
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+        
 
 
 
@@ -196,7 +216,7 @@
  $(document).ready(function () {
     var oTable = $("#studentTable").DataTable({
         ajax: {
-            url: "{{ url('admin/student_pds') }}",
+            url: "{{ url('anecdotal/data_sheet') }}",
             type: "GET",
             data: function(d) {
                 d.classification_id = $('#classification_id').val();
@@ -213,7 +233,13 @@
             },
             {
                 data: 'level',
-            }
+            },
+            {
+                data: 'img',
+            }, 
+            {
+                data: 'summary',
+            }, 
         ]
     });
 
@@ -248,9 +274,23 @@
 
     oTable.on("click", ".viewDetail", function() {
         const person_id = $(this).data("person_id");
-        const url = "{{ url('admin/student_profile') }}?person_id=" + person_id;
+        const url = "{{ url('admin/anecdotal_data') }}?person_id=" + person_id;
         window.open(url);
     });
+
+    $(document).on("click", ".viewImage", function (e) {
+      e.preventDefault();
+      var imgSrc = $(this).data("img");
+
+      if (imgSrc) {
+          $("#modalImage").attr("src", imgSrc);
+          $("#imageModal").modal("show");
+      }
+  });
+
+  
+
+
 });
 
 

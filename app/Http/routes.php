@@ -16,6 +16,21 @@ Route::post('student/studentFormSave', 'StudentController@store');
 Route::get('admin/student_pds', 'AdminController@getStudentPds');
 Route::get('admin/student_profile', 'AdminController@getStudentProfile');
 
+// anecdotal
+
+Route::get('admin/anecdotal', 'AdminController@anecDotal');
+Route::get('anecdotal/data_sheet', 'AdminController@anecDotalDataSheet');
+Route::get('admin/anecdotal_data', 'AdminController@anecdotalData');
+Route::post('anecdota_upload_image_file', 'AdminController@uploadImageAnecdotal');
+Route::post('anecdotal_summary', 'AdminController@anecdotalSummary');
+
+
+// chat bot 
+
+Route::get('admin/chatbot', 'AdminController@chatBot');
+Route::get('admin/chatbot_data', 'AdminController@chatBotData');
+
+
 Route::controllers([
 	'auth' => 'Auth\AuthController',
 	'password' => 'Auth\PasswordController',
