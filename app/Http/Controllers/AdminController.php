@@ -5,6 +5,7 @@ use App\ChatbotConversation;
 use App\Citizenship;
 use App\CivilStatus;
 use App\Classification;
+use App\Counseling;
 use App\EducationalBackground;
 use App\FamilyBackground;
 use App\Http\Requests;
@@ -175,6 +176,11 @@ class AdminController extends Controller {
 		return view('admin.anecdotalData');
 	}
 
+	public function counselingData()
+	{
+		return view('admin.counselingData');
+	}
+
 	public function uploadImageAnecdotal()
 	{
 		$files = Input::file('files');
@@ -214,6 +220,45 @@ class AdminController extends Controller {
 		return Redirect::to('admin/anecdotal_data')->with('success', 'Files uploaded successfully.');
 	}
 
+	public function uploadImageCounseling()
+	{
+		$files = Input::file('files');
+		$person_id = Input::get('person_id');
+		$person = Person::find($person_id);
+
+		\Log::info('Files received: ', ['files' => $files, 'person_id' => $person_id]);
+
+		if (!$files || !$person) {
+			\Log::error('No files uploaded or missing person ID.');
+			return Redirect::to('upload_image_file')->with('error', 'No files uploaded or person ID not found.');
+		}
+
+		$destination_path = 'assets/site/images/counseling/'; // Upload path
+
+		foreach ($files as $file) {
+			if (!$file->isValid()) {
+				\Log::error("Invalid file uploaded by person_id: $person_id");
+				continue;
+			}
+
+			$extension = $file->getClientOriginalExtension(); // Get file extension
+			$newFilename = $person->person_id . '_' . str_replace(' ', '_', $person->last_name) . '.' . $extension; // Rename using person_id
+
+			$file->move(public_path($destination_path), $newFilename);
+
+			$student = Student::where('person_id',$person_id)->first();
+
+			$anecdotal = Counseling::firstOrCreate(['student_id' => $student->id]);
+			$anecdotal->img = "assets/site/images/counseling/". $newFilename;
+			$anecdotal->save();
+		}
+
+		Session::flash('success', 'Files uploaded successfully.');
+		\Log::info("Files uploaded successfully for person_id: $person_id");
+
+		return Redirect::to('admin/counseling_data')->with('success', 'Files uploaded successfully.');
+	}
+
 	public function anecdotalSummary()
 	{
 		$person_id = Input::get('person_id');
@@ -226,6 +271,66 @@ class AdminController extends Controller {
 		return response()->json(['success' => true, 'message' => 'Anecdotal summary saved successfully!']);
 	}
 
+	public function counselingSummary()
+	{
+		$person_id = Input::get('person_id');
+		$counseling_summary = Input::get('counseling_summary');
+
+		$student = Student::where('person_id',$person_id)->first();
+		$anecdotal = Counseling::firstOrCreate(['student_id' => $student->id]);
+		$anecdotal->summary =$counseling_summary;
+		$anecdotal->save();
+		return response()->json(['success' => true, 'message' => 'Anecdotal summary saved successfully!']);
+	}
+
+
+	public function counseling()
+	{
+		$classification_list = Classification::all();
+
+		return view('admin.counseling',compact('classification_list'));
+	}
+
+	public function counselingDataSheet(Request $request){
+		$classification_id = $request->classification_id;
+		$classification_level_id = $request->classification_level_id;
+
+		$query = Student::join('person', 'student.person_id', '=', 'person.id')
+			->join('classification', 'student.classification_id', '=', 'classification.id')
+			->join('classification_level', 'student.classification_level_id', '=', 'classification_level.id')
+			->leftjoin('counseling','student.id', '=', 'counseling.student_id')
+			->orderBy('person.last_name', 'asc')
+			->select('person.id as person_id', 'first_name', 'middle_name', 'last_name','classification.classification_name','classification_level.level','counseling.img','counseling.summary')
+			->where(function($query) use($classification_id, $classification_level_id) {
+				if($classification_id != "") {
+					$query->where("student.classification_id", $classification_id);
+				} 
+				
+				if($classification_level_id != "") {
+					$query->where("student.classification_level_id", $classification_level_id);
+				} 
+			});
+
+		$students = $query->get();
+	
+
+		$datatable = $students->map(function ($student) {
+			$fullName = $student->first_name . ' ' . $student->middle_name . ' ' . $student->last_name;
+			
+			$imagePath = url($student->img);
+			return [
+				'name' => '<a data-person_id="'.$student->person_id.'" title="Click to view details" 
+							style="text-decoration: underline; cursor: pointer; color: #4620b1 !important;" 
+							class="viewDetail">'.$fullName.'</a>',
+				'classification' => $student->classification_name,
+				'level' => $student->level,
+				'img' => $student->img ? '<a href="#" class="viewImage" data-img="'.$imagePath.'">'.basename($student->img).'</a>' : '',
+				'summary' => $student->summary,
+			];
+		});
+
+		return response()->json($datatable);
+	}
 	
 	/**
 	 * Show the form for creating a new resource.

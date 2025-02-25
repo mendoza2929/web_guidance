@@ -24,6 +24,13 @@ Route::get('admin/anecdotal_data', 'AdminController@anecdotalData');
 Route::post('anecdota_upload_image_file', 'AdminController@uploadImageAnecdotal');
 Route::post('anecdotal_summary', 'AdminController@anecdotalSummary');
 
+// counseling 
+
+Route::get('admin/counseling', 'AdminController@counseling');
+Route::get('counseling/data_sheet', 'AdminController@counselingDataSheet');
+Route::get('admin/counseling_data', 'AdminController@counselingData');
+Route::post('counseling_upload_image_file', 'AdminController@uploadImageCounseling');
+Route::post('counseling_summary', 'AdminController@counselingSummary');
 
 // chat bot 
 

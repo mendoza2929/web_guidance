@@ -18,6 +18,9 @@
           <a class="nav-link {{ Request::is('admin/anecdotal') ? 'active' : '' }}" href="{{URL::to('admin/anecdotal')}}" role="button">
             <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fas fa-calendar"></span></span><span class="nav-link-text ps-1">Anecdotal</span></div>
           </a>
+          <a class="nav-link {{ Request::is('admin/counseling') ? 'active' : '' }}" href="{{URL::to('admin/counseling')}}" role="button">
+            <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fas fa-calendar"></span></span><span class="nav-link-text ps-1">Counseling</span></div>
+          </a>
           <a class="nav-link {{ Request::is('upload_image_file') ? 'active' : '' }}" href="{{URL::to('upload_image_file')}}" role="button">
             <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fas fa-calendar"></span></span><span class="nav-link-text ps-1">Upload Image</span></div>
           </a>
