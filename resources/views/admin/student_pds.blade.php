@@ -145,6 +145,7 @@
             <div class="card-body">
                 <form id="studentForm" autocomplete="off">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}" />
+                    <input type="hidden" name="person_id" value="{{ $person_id }}" />
                     <!-- PERSONAL BACKGROUND SECTION -->
                                 <div class="card mb-4 shadow-sm">
                                     <div class="card-header bg-primary text-white">
@@ -538,10 +539,50 @@
 <script>
 
 $(document).ready(function() {
-  
-  
-
-});
+           $("#submit").click(function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(document.getElementById('studentForm'));
+                formData.append('person_id', $("input[name='person_id']").val());
+                $.ajax({
+                    url: "{{ url('student/update_pds') }}",
+                    type: 'POST',
+                    data: formData,
+                    processData: false, 
+                    contentType: false, 
+                    success: function(response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: 'Student Personal Data Sheet successfully saved!',
+                                showConfirmButton: false,
+                                timer: 3000
+                            }).then(function() {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'Failed to save student.',
+                                showConfirmButton: false,
+                                timer: 3000
+                            });
+                        }
+                    },
+                    error: function(response) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'An error occurred while saving students.',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                    }
+                });
+            });    
+       });
 
 </script>
 

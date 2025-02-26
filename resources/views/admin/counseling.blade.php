@@ -9,6 +9,15 @@
     background-color: red !important;
     color: white !important;
   }
+  .container-fluid{
+    background-color: #ffffff;
+  }
+  .navbar{
+    background-color: #ffffff;
+  }
+  .navbar-vertical-content {
+    background-color: #ffffff;
+  }
 </style>
 
 <div class="container-fluid">
@@ -36,7 +45,7 @@
 			</div><a class="navbar-brand" href="{{URL::to('')}}">
 				<div class="d-flex align-items-center py-3">
 					<span class="font-sans-serif" style="color:#DE9208; font-size:13px">
-          GUIDANCE SYSTEM
+       
 					</span>
 				</div>
 			</a>
@@ -191,7 +200,7 @@
   <div class="modal-dialog" role="document">
       <div class="modal-content">
           <div class="modal-header">
-              <h5 class="modal-title">Anecdotal Image</h5>
+              <h5 class="modal-title">Counseling Image</h5>
           </div>
           <div class="modal-body text-center">
               <img id="modalImage" src="" class="img-fluid" alt="Anecdotal Image">

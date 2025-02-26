@@ -84,20 +84,16 @@
     </main>
 
     <script src="{{asset('assets/site/js/jquery-2.1.1.min.js')}}"></script>
-    {{-- <script src="{{asset('assets_test/js/theme.js')}}"></script> --}}
-    <script src="{{asset('assets_test/js/theme.js')}}"></script>
     <script src="{{asset('assets/site/chartist/chartist.js')}}"></script>
     <script src="{{asset('assets/site/js/jquery-migrate-1.2.1.min.js')}}"></script>
     <script src="{{asset('assets/site/js/bootstrap.min.js')}}"></script>
     <script src="{{asset('assets/site/js/jquery-ui.1.11.2.min.js')}}"></script>
     <script src="{{asset('assets/site/js/plugins/metisMenu/metisMenu.min.js')}}"></script>
-    <script src="{{asset('assets/site/js/sb-admin-2.js')}}"></script>
     <script src="{{asset('assets/site/js/jquery.dataTables.min.js')}}"></script>
     <script src="{{asset('assets/site/js/bootstrap-datepicker.min.js')}}"></script>         
     <script src="{{asset('assets/site/datatables/cdn.datatables.net_1.13.6_js_jquery.dataTables.min.js')}}"></script>
     <script src="{{asset('assets/site/js/moment.min.js')}}"></script> 
     <script src="{{asset('assets/site/js/flatpickr.js')}}"></script> 
-    <script src="{{asset('assets/site/js/bootstrap-datetimepicker.min.js')}}"></script> 
     <script src="{{asset('assets/site/js/dataTables.bootstrap.js')}}"></script>
     <script src="{{asset('assets/site/js/bootstrap-dataTables-paging.js')}}"></script>
     <script src="{{asset('assets/site/js/jquery.colorbox.js')}}"></script>
@@ -107,13 +103,10 @@
     <script src="{{asset('assets/site/js/SelectListChange.js')}}"></script> 
     <script src="{{asset('assets/site/js/typeahead.bundle.js')}}"></script>
     <script src="{{asset('assets/site/js/select2.js')}}"></script>
-    <script src="{{asset('assets/site/js/fullcalendar.min.js')}}"></script> 
     <script src="{{asset('assets/site/js/jquery.print.js')}}"></script>
-    <script src="{{asset('assets/site/theme.js')}}"></script>
     <script src="{{asset('assets/site/js/handsontable.full.js')}}"></script>  
     <script src="{{asset('assets/site/js/sweetalert2.min.js')}}"></script> 
     <script src="{{asset('assets/site/canvas/jquery.canvasjs.min.js')}}"></script> 
-    <script src="{{asset('assets/site/fullcalendar/dist/fullcalendar.min.js')}}"></script> 
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>

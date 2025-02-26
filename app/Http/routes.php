@@ -7,6 +7,7 @@ Route::get('home', 'HomeController@index');
 
 Route::get('/studentForm', 'StudentController@index');
 Route::post('student/create_pds', 'StudentController@createPds');
+Route::post('student/update_pds', 'StudentController@update_pds');
 
 // Route::pos
 
@@ -32,6 +33,13 @@ Route::get('admin/counseling_data', 'AdminController@counselingData');
 Route::post('counseling_upload_image_file', 'AdminController@uploadImageCounseling');
 Route::post('counseling_summary', 'AdminController@counselingSummary');
 
+// Psychology 
+
+Route::get('admin/psychology', 'AdminController@psychology');
+Route::get('psychology/data_sheet', 'AdminController@psychologyDataSheet');
+Route::get('admin/psychology_data', 'AdminController@psychologyData');
+Route::post('psychology_upload_image_file', 'AdminController@uploadImagePsychology');
+Route::post('psychology_summary', 'AdminController@psychologySummary');
 // chat bot 
 
 Route::get('admin/chatbot', 'AdminController@chatBot');

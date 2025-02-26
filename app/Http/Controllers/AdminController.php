@@ -6,6 +6,7 @@ use App\Citizenship;
 use App\CivilStatus;
 use App\Classification;
 use App\Counseling;
+use App\Psychology;
 use App\EducationalBackground;
 use App\FamilyBackground;
 use App\Http\Requests;
@@ -152,11 +153,11 @@ class AdminController extends Controller {
 		$education_background = EducationalBackground::where('person_id', $person->id)->first();
 		$survey = Survey::where('person_id', $person->id)->first();
 		$other_survey = OtherSurvey::where('person_id', $person->id)->first();
-		// dd($education_background);
+		// dd($person_id);
 
 
 
-		return view('admin.student_pds',compact('religion_list','citizenship_list','civil_status_list','person','famiy_background','education_background','other_survey','survey'));
+		return view('admin.student_pds',compact('religion_list','citizenship_list','civil_status_list','person','famiy_background','education_background','other_survey','survey','person_id'));
 	}
 
 
@@ -179,6 +180,11 @@ class AdminController extends Controller {
 	public function counselingData()
 	{
 		return view('admin.counselingData');
+	}
+
+	public function psychologyData()
+	{
+		return view('admin.psychologyData');
 	}
 
 	public function uploadImageAnecdotal()
@@ -259,6 +265,45 @@ class AdminController extends Controller {
 		return Redirect::to('admin/counseling_data')->with('success', 'Files uploaded successfully.');
 	}
 
+	public function uploadImagePsychology()
+	{
+		$files = Input::file('files');
+		$person_id = Input::get('person_id');
+		$person = Person::find($person_id);
+
+		\Log::info('Files received: ', ['files' => $files, 'person_id' => $person_id]);
+
+		if (!$files || !$person) {
+			\Log::error('No files uploaded or missing person ID.');
+			return Redirect::to('upload_image_file')->with('error', 'No files uploaded or person ID not found.');
+		}
+
+		$destination_path = 'assets/site/images/psychology/'; // Upload path
+
+		foreach ($files as $file) {
+			if (!$file->isValid()) {
+				\Log::error("Invalid file uploaded by person_id: $person_id");
+				continue;
+			}
+
+			$extension = $file->getClientOriginalExtension(); // Get file extension
+			$newFilename = $person->person_id . '_' . str_replace(' ', '_', $person->last_name) . '.' . $extension; // Rename using person_id
+
+			$file->move(public_path($destination_path), $newFilename);
+
+			$student = Student::where('person_id',$person_id)->first();
+
+			$anecdotal = Psychology::firstOrCreate(['student_id' => $student->id]);
+			$anecdotal->img = "assets/site/images/psychology/". $newFilename;
+			$anecdotal->save();
+		}
+
+		Session::flash('success', 'Files uploaded successfully.');
+		\Log::info("Files uploaded successfully for person_id: $person_id");
+
+		return Redirect::to('admin/psychology_data')->with('success', 'Files uploaded successfully.');
+	}
+
 	public function anecdotalSummary()
 	{
 		$person_id = Input::get('person_id');
@@ -280,7 +325,19 @@ class AdminController extends Controller {
 		$anecdotal = Counseling::firstOrCreate(['student_id' => $student->id]);
 		$anecdotal->summary =$counseling_summary;
 		$anecdotal->save();
-		return response()->json(['success' => true, 'message' => 'Anecdotal summary saved successfully!']);
+		return response()->json(['success' => true, 'message' => 'Counseling summary saved successfully!']);
+	}
+
+	public function psychologySummary()
+	{
+		$person_id = Input::get('person_id');
+		$psychology_summary = Input::get('psychology_summary');
+
+		$student = Student::where('person_id',$person_id)->first();
+		$anecdotal = Psychology::firstOrCreate(['student_id' => $student->id]);
+		$anecdotal->summary =$psychology_summary;
+		$anecdotal->save();
+		return response()->json(['success' => true, 'message' => 'Psychology summary saved successfully!']);
 	}
 
 
@@ -289,6 +346,12 @@ class AdminController extends Controller {
 		$classification_list = Classification::all();
 
 		return view('admin.counseling',compact('classification_list'));
+	}
+
+	public function psychology(){
+		$classification_list = Classification::all();
+
+		return view('admin.psychology',compact('classification_list'));
 	}
 
 	public function counselingDataSheet(Request $request){
@@ -301,6 +364,48 @@ class AdminController extends Controller {
 			->leftjoin('counseling','student.id', '=', 'counseling.student_id')
 			->orderBy('person.last_name', 'asc')
 			->select('person.id as person_id', 'first_name', 'middle_name', 'last_name','classification.classification_name','classification_level.level','counseling.img','counseling.summary')
+			->where(function($query) use($classification_id, $classification_level_id) {
+				if($classification_id != "") {
+					$query->where("student.classification_id", $classification_id);
+				} 
+				
+				if($classification_level_id != "") {
+					$query->where("student.classification_level_id", $classification_level_id);
+				} 
+			});
+
+		$students = $query->get();
+	
+
+		$datatable = $students->map(function ($student) {
+			$fullName = $student->first_name . ' ' . $student->middle_name . ' ' . $student->last_name;
+			
+			$imagePath = url($student->img);
+			return [
+				'name' => '<a data-person_id="'.$student->person_id.'" title="Click to view details" 
+							style="text-decoration: underline; cursor: pointer; color: #4620b1 !important;" 
+							class="viewDetail">'.$fullName.'</a>',
+				'classification' => $student->classification_name,
+				'level' => $student->level,
+				'img' => $student->img ? '<a href="#" class="viewImage" data-img="'.$imagePath.'">'.basename($student->img).'</a>' : '',
+				'summary' => $student->summary,
+			];
+		});
+
+		return response()->json($datatable);
+	}
+
+	public function psychologyDataSheet(Request $request)
+	{
+		$classification_id = $request->classification_id;
+		$classification_level_id = $request->classification_level_id;
+
+		$query = Student::join('person', 'student.person_id', '=', 'person.id')
+			->join('classification', 'student.classification_id', '=', 'classification.id')
+			->join('classification_level', 'student.classification_level_id', '=', 'classification_level.id')
+			->leftjoin('psychology','student.id', '=', 'psychology.student_id')
+			->orderBy('person.last_name', 'asc')
+			->select('person.id as person_id', 'first_name', 'middle_name', 'last_name','classification.classification_name','classification_level.level','psychology.img','psychology.summary')
 			->where(function($query) use($classification_id, $classification_level_id) {
 				if($classification_id != "") {
 					$query->where("student.classification_id", $classification_id);

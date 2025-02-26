@@ -9,7 +9,6 @@
     background-color: red !important;
     color: white !important;
   }
-
   .container-fluid{
     background-color: #ffffff;
   }
@@ -46,7 +45,7 @@
 			</div><a class="navbar-brand" href="{{URL::to('')}}">
 				<div class="d-flex align-items-center py-3">
 					<span class="font-sans-serif" style="color:#DE9208; font-size:13px">
-      
+       
 					</span>
 				</div>
 			</a>
@@ -145,20 +144,44 @@
             <div class="card-body">
               <div class="row flex-between-center">
                 <div class="col-md">
-                  <h5 class="mb-2 mb-md-0">GOLink AI CHAT BOT</h5>
+                  <h5 class="mb-2 mb-md-0">Psychology Test</h5>
                 </div>
               </div>
             </div>
           </div>
-    
+          
+            <div class="row">
+              <div class="col-md-3">
+                  <label for="classification_id">Department Type</label>
+                  <select name="classification_id" id="classification_id" class="form-control">
+                      <option value="">Select Classification</option>
+                      @foreach ($classification_list as $classification)
+                          <option value="{{ $classification->id }}">{{ $classification->classification_name }}</option>
+                      @endforeach
+                  </select>
+              </div>
+          
+              <div class="col-md-3">
+                  <label for="classification_level_id">Level</label>
+                  <select name="classification_level_id" id="classification_level_id" class="form-control">
+
+                  </select>
+              </div>
+          </div>
+          
+          <br>
+
           <div class="card">
             <div class="card-body">
-                <h5 class="card-title">GOLink AI Chat Bot Summary</h5>
-                <table id="chatBotTable" class="table table-bordered">
+                <h5 class="card-title">Psychology Data Sheet</h5>
+                <table id="studentTable" class="table table-bordered">
                     <thead>
                         <tr>
                             <th>Student Name</th>
-                            <th>AI Response</th>
+                            <th>Department Type</th>
+                            <th>Level</th>
+                            <th>Image</th>
+                            <th>Summary</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -170,6 +193,24 @@
 
 
 
+        
+          <!-- Image Modal -->
+ <!-- Modal Structure -->
+<div id="imageModal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title">Psychology Image</h5>
+          </div>
+          <div class="modal-body text-center">
+              <img id="modalImage" src="" class="img-fluid" alt="Anecdotal Image">
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+      </div>
+  </div>
+</div>
 
 
         
@@ -182,12 +223,13 @@
 <script>
  var oTable;
  $(document).ready(function () {
-    var oTable = $("#chatBotTable").DataTable({
+    var oTable = $("#studentTable").DataTable({
         ajax: {
-            url: "{{ url('admin/chatbot_data') }}",
+            url: "{{ url('psychology/data_sheet') }}",
             type: "GET",
             data: function(d) {
-                
+                d.classification_id = $('#classification_id').val();
+                d.classification_level_id = $('#classification_level_id').val();
             },
             dataSrc: "",
         },
@@ -196,11 +238,66 @@
                 data: 'name',
             },
             {
-                data: 'response',
+                data: 'classification',
             },
+            {
+                data: 'level',
+            },
+            {
+                data: 'img',
+            }, 
+            {
+                data: 'summary',
+            }, 
         ]
     });
 
+
+    $('#classification_id').on('change', function () {
+        var classificationId = $(this).val();
+        $('#classification_level_id').empty().append('<option value="">Loading...</option>');
+
+        if (classificationId) {
+            $.ajax({
+                url: "{{ url('get/classification_data/') }}/" + classificationId,
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    $('#classification_level_id').empty().append('<option value="">Select Level</option>');
+                    $.each(data.classification_levels, function (index, level) {
+                        $('#classification_level_id').append('<option value="' + level.id + '">' + level.level + '</option>');
+                    });
+                }
+            });
+        } else {
+            $('#classification_level_id').empty().append('<option value="">Select Classification Level</option>');
+        }
+
+        oTable.ajax.reload(); 
+    });
+
+
+    $('#classification_level_id').on('change', function () {
+        oTable.ajax.reload();
+    });
+
+    oTable.on("click", ".viewDetail", function() {
+        const person_id = $(this).data("person_id");
+        const url = "{{ url('admin/psychology_data') }}?person_id=" + person_id;
+        window.open(url);
+    });
+
+    $(document).on("click", ".viewImage", function (e) {
+      e.preventDefault();
+      var imgSrc = $(this).data("img");
+
+      if (imgSrc) {
+          $("#modalImage").attr("src", imgSrc);
+          $("#imageModal").modal("show");
+      }
+  });
+
+  
 
 
 });

@@ -294,6 +294,158 @@ class StudentController extends Controller {
 		
 	}
 
+	public function update_pds()
+	{
+		$person_id = \Request::input('person_id');
+		$first_name = \Request::input('first_name');
+		$last_name = \Request::input('last_name');
+		$middle_name = \Request::input('middle_name');
+		$today_date = \Request::input('today_date');
+		$address = \Request::input('address');
+		$place_of_birth = \Request::input('place_of_birth');
+		$religion_id = \Request::input('religion_id');
+		$student_email = \Request::input('student_email');
+		$gender_id = \Request::input('gender_id');
+		$civil_status_id = \Request::input('civil_status_id');
+		$birthdate = \Request::input('birthdate');
+		$citizenship_id = \Request::input('citizenship_id');
+		$student_mobile_no = \Request::input('student_mobile_no');
+		$workingStudent = \Request::input('workingStudent');
+		$scholar = \Request::input('scholar');
+		$singleParent = \Request::input('singleParent');
+		$who_guardian = \Request::input('who_guardian');
+		$who_sponsor = \Request::input('who_sponsor');
+		$many_children = \Request::input('many_children');
+		$married = \Request::input('married');
+		$no_bro = \Request::input('no_bro');
+		$father_name = \Request::input('father_name');
+		$father_age = \Request::input('father_age');
+		$father_address = \Request::input('father_address');
+		$father_educational = \Request::input('father_educational');
+		$father_occupation = \Request::input('father_occupation');
+		$father_number = \Request::input('father_number');
+		$no_sis = \Request::input('no_sis');
+		$mother_name = \Request::input('mother_name');
+		$mother_age = \Request::input('mother_age');
+		$mother_address = \Request::input('mother_address');
+		$mother_educational = \Request::input('mother_educational');
+		$mother_occupation = \Request::input('mother_occupation');
+		$mother_number = \Request::input('mother_number');
+		$elem = \Request::input('elem');
+		$elem_sub_like = \Request::input('elem_sub_like');
+		$elem_sub_not_like = \Request::input('elem_sub_not_like');
+		$jhs = \Request::input('jhs');
+		$jhs_sub_like = \Request::input('jhs_sub_like');
+		$jhs_sub_not_like = \Request::input('jhs_sub_not_like');
+		$g11 = \Request::input('g11');
+		$g11_sub_like = \Request::input('g11_sub_like');
+		$g11_sub_not_like = \Request::input('g11_sub_not_like');
+		$g12 = \Request::input('g12');
+		$g12_sub_like = \Request::input('g12_sub_like');
+		$g12_sub_not_like = \Request::input('g12_sub_not_like');
+		$college = \Request::input('college');
+		$college_sub_like = \Request::input('college_sub_like');
+		$college_sub_not_like = \Request::input('college_sub_not_like');
+		$easiest = \Request::input('easiest');
+		$most_diff_sub = \Request::input('most_diff_sub');
+		$subj_lowest = \Request::input('subj_lowest');
+		$subj_highest = \Request::input('subj_highest');
+		$subj_highest_grade = \Request::input('subj_highest_grade');
+		$plan_after_hs = \Request::input('plan_after_hs');
+		$award = \Request::input('award');
+		$emergency_contact = \Request::input('emergency_contact');
+
+
+		$person = Person::updateOrCreate(
+			['id' => \Request::input('person_id')],
+			[
+				'first_name' => \Request::input('first_name'),
+				'last_name' => \Request::input('last_name'),
+				'email_address' => \Request::input('student_email'),
+				'middle_name' => \Request::input('middle_name'),
+				'date_input' => \Request::input('today_date'),
+				'gender_id' => \Request::input('gender_id'),
+				'civil_status_id' => \Request::input('civil_status_id'),
+				'citizenship_id' => \Request::input('citizenship_id'),
+				'mobile_number' => \Request::input('student_mobile_no'),
+				'address' => \Request::input('address'),
+				'place_of_birth' => \Request::input('place_of_birth'),
+				'religion_id' => \Request::input('religion_id'),
+				'birthdate' => \Request::input('birthdate'),
+				'incase_of_emergency' => \Request::input('emergency_contact'),
+			]
+		);
+
+		$family_background = FamilyBackground::updateOrCreate(
+			['person_id' => $person->id],
+			[
+				'no_brother' => \Request::input('no_bro'),
+				'no_sister' => \Request::input('no_sis'),
+				'father_name' => \Request::input('father_name'),
+				'mother_name' => \Request::input('mother_name'),
+				'father_age' => \Request::input('father_age'),
+				'mother_age' => \Request::input('mother_age'),
+				'father_address' => \Request::input('father_address'),
+				'mother_address' => \Request::input('mother_address'),
+				'father_educational' => \Request::input('father_educational'),
+				'mother_educational' => \Request::input('mother_educational'),
+				'father_occupation' => \Request::input('father_occupation'),
+				'mother_occupation' => \Request::input('mother_occupation'),
+				'father_mobile' => \Request::input('father_number'),
+				'mother_mobile' => \Request::input('mother_number')
+			]
+		);
+
+		$survey = Survey::updateOrCreate(
+			['person_id' => $person->id],
+			[
+				'working_student' => \Request::input('workingStudent'),
+				'scholar' => \Request::input('scholar'),
+				'single_parent' => \Request::input('singleParent'),
+				'guardian' => \Request::input('who_guardian'),
+				'sponsor' => \Request::input('who_sponsor'),
+				'children' => \Request::input('many_children'),
+				'married' => \Request::input('married'),
+			]
+		);
+
+
+		$educational_background = EducationalBackground::updateOrCreate(
+			['person_id' => $person->id],
+			[
+				'elem_school' => \Request::input('elem'),
+				'elem_subject_like' => \Request::input('elem_sub_like'),
+				'elem_subject_not_like' => \Request::input('elem_sub_not_like'),
+				'jhs_school' => \Request::input('jhs'),
+				'jhs_subject_like' => \Request::input('jhs_sub_like'),
+				'jhs_subject_not_like' => \Request::input('jhs_sub_not_like'),
+				'g11_school' => \Request::input('g11'),
+				'g11_subject_like' => \Request::input('g11_sub_like'),
+				'g11_subject_not_like' => \Request::input('g11_sub_not_like'),
+				'g12_school' => \Request::input('g12'),
+				'g12_subject_like' => \Request::input('g12_sub_like'),
+				'g12_subject_not_like' => \Request::input('g12_sub_not_like'),
+				'college_school' => \Request::input('college'),
+				'college_subject_like' => \Request::input('college_sub_like'),
+				'college_subject_not_like' => \Request::input('college_sub_not_like'),
+			]
+		);
+	
+		$other_survey = OtherSurvey::updateOrCreate(
+			['person_id' => $person->id],
+			[
+				'easiest_sub' => \Request::input('easiest'),
+				'most_difficult_sub' => \Request::input('most_diff_sub'),
+				'sub_with_lowest' => \Request::input('subj_lowest'),
+				'sub_with_highest' => \Request::input('subj_highest_grade'),
+				'plan_after_hs' => \Request::input('plan_after_hs'),
+				'awards' => \Request::input('award'),
+			]
+		);
+	
+		return response()->json(['success' => true, 'person' => $person,'family_background' => $family_background, 'educational_background' => $educational_background, 'other_survey' => $other_survey, 'survey' => $survey]);
+	}
+
 	public function saveConversation(Request $request)
     {
         // Validate the incoming request
