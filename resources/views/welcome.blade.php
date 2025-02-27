@@ -209,11 +209,11 @@
           <li><a href="#about">About</a></li> 
           <li><a href="{{ url('/auth/login') }}" class="btn btn-primary btn-sm btn-lg px-4 py-2 shadow rounded-pill" >Login</a></li>
 
-          <li>
+          {{-- <li>
             <a href="{{ url('/studentForm') }}" class="btn btn-primary btn-lg px-4 py-2 shadow rounded-pill">
                 <i class="bi bi-file-earmark-text"></i> Student Data Form
             </a>
-        </li>
+        </li> --}}
           </li>
          
         </ul>
