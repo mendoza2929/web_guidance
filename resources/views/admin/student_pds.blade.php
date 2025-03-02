@@ -9,6 +9,76 @@
     background-color: red !important;
     color: white !important;
   }
+
+  .header-left {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+  .upload-box {
+            width: 120px;
+            height: 120px;
+            border: 2px dashed #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+            color: #888;
+            background-color: #f8f8f8;
+            transition: 0.3s;
+            border-radius: 5px;
+            overflow: hidden;
+            flex-direction: column;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .upload-box:hover {
+            background-color: #eee;
+        }
+
+        .upload-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* display: none; */
+        }
+
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            border-bottom: 3px solid #007bff;
+            flex-wrap: wrap;
+            color:white;
+        }
+
+        .header-title {
+            text-align: center;
+            flex: 1;
+        }
+
+        .header-title h1 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .header-title span {
+            font-size: 16px;
+            color: #555;
+        }
+
+        .header-title h2 {
+            font-size: 18px;
+            font-weight: bold;
+            color: #444;
+            margin-top: 5px;
+        }
 </style>
 
 <div class="container-fluid">
@@ -143,6 +213,39 @@
 
           <div class="card">
             <div class="card-body">
+
+                <div class="header-container">
+                    <!-- Left Section: Logo & Form Label -->
+                    {{-- <div class="header-left">
+                        <img src="{{ asset('assets/img/gallery/asclogo.png') }}" alt="ASC Logo" class="img-fluid logo" style="width: 20%;">
+                        <div class="form-label">Guidance Form 1</div>
+                    </div> --}}
+        
+                    <!-- Center Section: Title & Description -->
+                    <div class="header-title">
+                        <h1>Andres Soriano Colleges</h1>
+                        <span>Mangagoy, Bislig City</span>
+                        <h2>Guidance Testing Center</h2>
+                        <h2>Personal Data Sheet</h2>
+                    </div>
+        
+                    <!-- Right Section: Upload Box -->
+                    <div class="upload-box" id="uploadBox">
+                        {{-- 2x2 ID Picture
+                        <input type="file" id="imageInput" accept="image/*" style="display: none;"> --}}
+                        <img id="imagePreview" src="{{ asset($person->img) }}" alt="Image Preview" width="150" height="150">
+                    </div>
+                    
+                </div>
+        
+                <h4>Dear Students:</h4>
+                <div class="info-box">
+                    <p>
+                        The purpose of this form is to gather important information that will be of great help to all of us in the 
+                        <strong>Guidance and Counseling</strong> process. The success that you may expect in counseling will depend on your 
+                        honest and accurate responses. You don’t have to worry; <strong>ALL TRANSACTIONS WILL BE KEPT CONFIDENTIAL.</strong>
+                    </p>
+                </div>
                 <form id="studentForm" autocomplete="off">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}" />
                     <input type="hidden" name="person_id" value="{{ $person_id }}" />
