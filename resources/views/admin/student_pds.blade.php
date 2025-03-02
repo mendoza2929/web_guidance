@@ -344,82 +344,67 @@
                                             <div class="col-md-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="studentBrothers">No. of Brothers</label>
-                                                    <input type="text" id="studentBrothers" class="form-control shadow-sm rounded" name="no_bro" 
-                                                        value="{{ isset($famiy_background->no_brother) ? $famiy_background->no_brother : '' }}" />
+                                                    <input type="text" id="studentBrothers" class="form-control shadow-sm rounded" name="no_bro" id="no_bro" value="{{ $famiy_background->no_brother }}" />
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label" for="fatherName">Father's Name</label>
-                                                    <input type="text" id="fatherName" class="form-control shadow-sm rounded" name="father_name"
-                                                        value="{{ isset($famiy_background->father_name) ? $famiy_background->father_name : '' }}" />
+                                                    <input type="text" id="fatherName" class="form-control shadow-sm rounded" name="father_name" id="father_name" value="{{ $famiy_background->father_name }}" />
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label" for="fatherAge">Age</label>
-                                                    <input type="text" id="fatherAge" class="form-control shadow-sm rounded" name="father_age"
-                                                        value="{{ isset($famiy_background->father_age) ? $famiy_background->father_age : '' }}" />
+                                                    <input type="text" id="fatherAge" class="form-control shadow-sm rounded" name="father_age" id="father_age"  value="{{ $famiy_background->father_age }}"/>
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label" for="fatherAddress">Home Address</label>
-                                                    <input type="text" id="fatherAddress" class="form-control shadow-sm rounded" name="father_address"
-                                                        value="{{ isset($famiy_background->father_address) ? $famiy_background->father_address : '' }}" />
+                                                    <input type="text" id="fatherAddress" class="form-control shadow-sm rounded" name="father_address" id="father_address" value="{{ $famiy_background->father_address }}" />
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label" for="fatherEducation">Educational Attainment</label>
-                                                    <input type="text" id="fatherEducation" class="form-control shadow-sm rounded" name="father_educational"
-                                                        value="{{ isset($famiy_background->father_educational) ? $famiy_background->father_educational : '' }}" />
+                                                    <input type="text" id="fatherEducation" class="form-control shadow-sm rounded" name="father_educational" id="father_educational"  value="{{ $famiy_background->father_educational }}"/>
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label" for="fatherOccupation">Occupation</label>
-                                                    <input type="text" id="fatherOccupation" class="form-control shadow-sm rounded" name="father_occupation"
-                                                        value="{{ isset($famiy_background->father_occupation) ? $famiy_background->father_occupation : '' }}" />
+                                                    <input type="text" id="fatherOccupation" class="form-control shadow-sm rounded"  name="father_occupation" id="father_occupation" value="{{ $famiy_background->father_occupation }}" />
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label" for="fatherMobile">Mobile Number</label>
-                                                    <input type="text" id="fatherMobile" class="form-control shadow-sm rounded" name="father_number"
-                                                        value="{{ isset($famiy_background->father_mobile) ? $famiy_background->father_mobile : '' }}" />
+                                                    <input type="text" id="fatherMobile" class="form-control shadow-sm rounded" name="father_number" id="father_number" value="{{ $famiy_background->father_mobile }}"  />
                                                 </div>
                                             </div>
                                             <!-- Mother's Information -->
                                             <div class="col-md-6">
                                                 <div class="mb-3">
                                                     <label class="form-label" for="studentSister">No. of Sisters</label>
-                                                    <input type="text" id="studentSister" class="form-control shadow-sm rounded" name="no_sis"
-                                                        value="{{ isset($famiy_background->no_sister) ? $famiy_background->no_sister : '' }}" />
+                                                    <input type="text" id="studentSister" class="form-control shadow-sm rounded" name="no_sis" id="no_sis" value="{{ $famiy_background->no_sister }}"  />
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label" for="motherName">Mother's Name</label>
-                                                    <input type="text" id="motherName" class="form-control shadow-sm rounded" name="mother_name"
-                                                        value="{{ isset($famiy_background->mother_name) ? $famiy_background->mother_name : '' }}" />
+                                                    <input type="text" id="motherName" class="form-control shadow-sm rounded" name="mother_name" id="mother_name" value="{{ $famiy_background->mother_name }}"   />
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label" for="motherAge">Age</label>
-                                                    <input type="text" id="motherAge" class="form-control shadow-sm rounded" name="mother_age"
-                                                        value="{{ isset($famiy_background->mother_age) ? $famiy_background->mother_age : '' }}" />
+                                                    <input type="text" id="motherAge" class="form-control shadow-sm rounded" name="mother_age" id="mother_age" value="{{ $famiy_background->mother_age }}"  />
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label" for="motherAddress">Home Address</label>
-                                                    <input type="text" id="motherAddress" class="form-control shadow-sm rounded" name="mother_address"
-                                                        value="{{ isset($famiy_background->mother_address) ? $famiy_background->mother_address : '' }}" />
+                                                    <input type="text" id="motherAddress" class="form-control shadow-sm rounded" name="mother_address" id="mother_address" value="{{ $famiy_background->mother_address }}"  />
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label" for="motherEducation">Educational Attainment</label>
-                                                    <input type="text" id="motherEducation" class="form-control shadow-sm rounded" name="mother_educational"
-                                                        value="{{ isset($famiy_background->mother_educational) ? $famiy_background->mother_educational : '' }}" />
+                                                    <input type="text" id="motherEducation" class="form-control shadow-sm rounded" name="mother_educational" id="mother_educational" value="{{ $famiy_background->mother_educational }}"  />
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label" for="motherOccupation">Occupation</label>
-                                                    <input type="text" id="motherOccupation" class="form-control shadow-sm rounded" name="mother_occupation"
-                                                        value="{{ isset($famiy_background->mother_occupation) ? $famiy_background->mother_occupation : '' }}" />
+                                                    <input type="text" id="motherOccupation" class="form-control shadow-sm rounded" name="mother_occupation" id="mother_occupation"  value="{{ $famiy_background->mother_occupation }}" />
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label" for="motherMobile">Mobile Number</label>
-                                                    <input type="text" id="motherMobile" class="form-control shadow-sm rounded" name="mother_number"
-                                                        value="{{ isset($famiy_background->mother_mobile) ? $famiy_background->mother_mobile : '' }}" />
+                                                    <input type="text" id="motherMobile" class="form-control shadow-sm rounded" name="mother_number" id="mother_number" value="{{ $famiy_background->mother_mobile }}"  />
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                
                             
                                 <!-- EDUCATIONAL BACKGROUND SECTION -->
                                 <div class="card mb-4 shadow-sm">
