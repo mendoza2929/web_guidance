@@ -7,9 +7,23 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>GOLink</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
 </head>
 <style>
     @import 'https://fonts.googleapis.com/css?family=Open+Sans|Quicksand:400,700';
+    p.field {
+    position: relative;
+}
+
+p.field span {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #555; /* Adjust color if needed */
+}
 
 
     *,
@@ -488,16 +502,18 @@ Credits
                             <input title="Inpit title" name="email" type="text" class="input_field" id="email_field" value="{{ old('email') }}" autofocus />
                             <span id='valida' class='i i-warning'></span>
                         </p>
-                        <p class='field'>
+                        <p class='field' style="position: relative;">
                             <label for='pass'>PASSWORD</label>
-                            <input placeholder="Password" title="Inpit title" name="password" type="password" class="input_field" id="password_field"/>
+                            <input placeholder="Password" title="Input title" name="password" type="password" 
+                                   class="input_field" id="password_field" 
+                                   style="width: 100%; padding-right: 35px;" oninput="keepEyeIcon()"/>
                             <span id='valida' class='i i-close'></span>
+                            <span onclick="togglePassword()" 
+                                  id="toggle_eye"
+                                  style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;">
+                                <i id="eye_icon" class="fa fa-eye"></i>
+                            </span>
                         </p>
-
-                        {{-- <label class='checkbox'>
-                            <input type='checkbox' value='TRUE' title='Keep me Signed in' /> Keep me Signed in
-                        </label> --}}
-
                         <input type='submit' id='do_login' value='LOGIN' title='Login' />
 						
                     </div>
@@ -519,6 +535,28 @@ Credits
 
 
     <script>
+function togglePassword() {
+        var passwordField = document.getElementById("password_field");
+        var eyeIcon = document.getElementById("eye_icon");
+        var eyeContainer = document.getElementById("toggle_eye");
+        
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            eyeIcon.classList.remove("fa-eye");
+            eyeIcon.classList.add("fa-eye-slash");
+        } else {
+            passwordField.type = "password";
+            eyeIcon.classList.remove("fa-eye-slash");
+            eyeIcon.classList.add("fa-eye");
+        }
+
+        eyeContainer.style.display = "inline-block";
+    }
+
+    function keepEyeIcon() {
+        var eyeContainer = document.getElementById("toggle_eye");
+        eyeContainer.style.display = "inline-block";
+    }
         $(document).ready(function() {
             $("#do_login").click(function() {
                 closeLoginInfo();

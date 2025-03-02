@@ -243,7 +243,22 @@
         .teacher_flex label:nth-child(2) {
             flex-basis: 20%; /* Age field gets 20% width */
         }
-            
+        .password-container {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+    .input {
+        width: 100%;
+        padding-right: 40px; /* To avoid text overlapping with the icon */
+    }
+    .toggle-password {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+    }
     </style>
 
   <div class="tab">
@@ -308,14 +323,17 @@
 			</fieldset>
 			<fieldset>
 				<legend>Account Information</legend>
-				<label>
-					<input class="input" type="password"  name="password" id="password" required>
-					<span>Password</span>
-				</label>
-				<label>
-					<input class="input" type="password"  name="confirm_password" id="confirm_password" required>
-					<span>Confirm Password</span>
-				</label>
+				<label class="password-container">
+                    <input class="input" type="password" name="password" id="password" required>
+                    <span>Password</span>
+                    <i class="toggle-password" onclick="togglePassword('password', this)">👁️</i>
+                </label>
+                
+                <label class="password-container">
+                    <input class="input" type="password" name="confirm_password" id="confirm_password" required>
+                    <span>Confirm Password</span>
+                    <i class="toggle-password" onclick="togglePassword('confirm_password', this)">👁️</i>
+                </label>
                 <span id="password-error" style="color:red; display:none;">Passwords do not match!</span>
 			</fieldset>
 	
@@ -332,6 +350,16 @@
 @stop
 @section('scripts')
 <script>
+     function togglePassword(inputId, icon) {
+        let input = document.getElementById(inputId);
+        if (input.type === "password") {
+            input.type = "text";
+            icon.textContent = "🙈"; // Change to a different icon (eye closed)
+        } else {
+            input.type = "password";
+            icon.textContent = "👁️"; // Change back to eye icon
+        }
+    }
     $(document).ready(function(){
 
 

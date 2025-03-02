@@ -24,6 +24,8 @@
           <a class="nav-link {{ Request::is('admin/psychology') ? 'active' : '' }}" href="{{URL::to('admin/psychology')}}" role="button">
             <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fas fa-calendar"></span></span><span class="nav-link-text ps-1">Psychology Test</span></div>
           </a>
+          <a class="nav-link {{ Request::is('upload_image_file') ? 'active' : '' }}" href="{{URL::to('upload_image_file')}}" role="button">
+            <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fas fa-calendar"></span></span><span class="nav-link-text ps-1">Upload Image</span></div>
         </li>
       </ul>
     </div>
