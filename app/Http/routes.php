@@ -16,6 +16,7 @@ Route::post('student/studentFormSave', 'StudentController@store');
 
 Route::get('admin/student_pds', 'AdminController@getStudentPds');
 Route::get('admin/student_profile', 'AdminController@getStudentProfile');
+Route::get('admin/student_profile_pdf', 'AdminController@getStudentProfilePdf');
 
 // anecdotal
 

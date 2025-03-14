@@ -181,6 +181,7 @@
                             <th>Student Name</th>
                             <th>Department Type</th>
                             <th>Level</th>
+                            <th>PDF</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -223,6 +224,9 @@
             },
             {
                 data: 'level',
+            },
+            {
+                data: 'pdf',
             }
         ]
     });
@@ -259,6 +263,11 @@
     oTable.on("click", ".viewDetail", function() {
         const person_id = $(this).data("person_id");
         const url = "{{ url('admin/student_profile') }}?person_id=" + person_id;
+        window.open(url);
+    });
+    oTable.on("click", ".viewDetailPDF", function() {
+        const person_id = $(this).data("person_id");
+        const url = "{{ url('admin/student_profile_pdf') }}?person_id=" + person_id;
         window.open(url);
     });
 });

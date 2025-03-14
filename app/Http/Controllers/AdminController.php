@@ -68,7 +68,10 @@ class AdminController extends Controller {
 								style="text-decoration: underline; cursor: pointer; color: #4620b1 !important;" 
 								class="viewDetail">'.$fullName.'</a>',
 					'classification' => $student->classification_name,
-					'level' => $student->level
+					'level' => $student->level,
+					'pdf' => '<a data-person_id="'.$student->person_id.'" title="Click to view details" 
+							style="text-decoration: underline; cursor: pointer; color: #4620b1 !important;" 
+							class="viewDetailPDF">PDF</a>',
 				];
 			});
 
@@ -136,6 +139,15 @@ class AdminController extends Controller {
 			});
 
 			return response()->json($datatable);
+		}
+
+		public function getStudentProfilePdf()
+		{
+
+			$pdf = \PDF::loadView('admin.student_pdf');
+	
+			$pdf->setPaper('legal', 'portrait');
+			return $pdf->stream('student_pdf.pdf');
 		}
 
 
