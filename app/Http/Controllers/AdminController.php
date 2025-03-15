@@ -144,7 +144,21 @@ class AdminController extends Controller {
 		public function getStudentProfilePdf()
 		{
 
-			$pdf = \PDF::loadView('admin.student_pdf');
+			$person_id = \Request::get('person_id');
+
+
+			$student_details = Person::leftJoin('gender', 'person.gender_id', '=', 'gender.id')
+			->leftjoin('civil_status','person.civil_status_id', '=', 'civil_status.id')
+			->leftjoin('religion','person.religion_id', '=', 'religion.id')
+			->leftjoin('citizenship','person.citizenship_id', '=', 'citizenship.id')
+			->leftjoin('survey','person.id','=','survey.person_id')
+			->where('person.id', $person_id)
+			->select('person.*', 'gender.id as gender_id','civil_status.civil_status_name','religion.religion_name','citizenship.citizenship_name','survey.working_student','survey.scholar','survey.single_parent','survey.guardian','survey.sponsor','survey.married') 
+			->first();
+			// dd($person_id);
+
+
+			$pdf = \PDF::loadView('admin.student_pdf',compact('student_details'));
 	
 			$pdf->setPaper('legal', 'portrait');
 			return $pdf->stream('student_pdf.pdf');
