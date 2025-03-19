@@ -152,8 +152,11 @@ class AdminController extends Controller {
 			->leftjoin('religion','person.religion_id', '=', 'religion.id')
 			->leftjoin('citizenship','person.citizenship_id', '=', 'citizenship.id')
 			->leftjoin('survey','person.id','=','survey.person_id')
+			->leftJoin('family_background', 'person.id', '=', 'family_background.person_id')
+			->leftjoin('educational_background','person.id','=','educational_background.person_id')
+			->leftjoin('other_survey','person.id','=','other_survey.person_id')
 			->where('person.id', $person_id)
-			->select('person.*', 'gender.id as gender_id','civil_status.civil_status_name','religion.religion_name','citizenship.citizenship_name','survey.working_student','survey.scholar','survey.single_parent','survey.guardian','survey.sponsor','survey.married') 
+			->select('person.*', 'gender.id as gender_id','civil_status.civil_status_name','religion.religion_name','citizenship.citizenship_name','survey.working_student','survey.scholar','survey.single_parent','survey.guardian','survey.sponsor','survey.married','survey.children','family_background.no_brother','family_background.no_sister','family_background.father_name','family_background.mother_name','family_background.father_age','family_background.mother_age','family_background.father_address','family_background.mother_address','family_background.father_educational','family_background.mother_educational','family_background.father_occupation','family_background.mother_occupation','family_background.father_mobile','family_background.mother_mobile','educational_background.elem_school','educational_background.elem_subject_like','educational_background.elem_subject_not_like','educational_background.jhs_subject_like','educational_background.jhs_subject_not_like','educational_background.g11_school','educational_background.g11_subject_like','educational_background.g11_subject_not_like','educational_background.g12_school','educational_background.g12_subject_like','educational_background.g12_subject_not_like','educational_background.college_school','educational_background.college_subject_like','educational_background.college_subject_not_like','other_survey.easiest_sub','other_survey.most_difficult_sub','other_survey.sub_with_lowest','other_survey.sub_with_highest','other_survey.plan_after_hs','other_survey.awards','person.incase_of_emergency') 
 			->first();
 			// dd($person_id);
 

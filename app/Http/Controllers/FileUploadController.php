@@ -37,7 +37,7 @@ class FileUploadController extends Controller {
 		$files = $file;
 
 		// Process each file
-		$destination_path = 'assets/site/images/person_images/'; // upload path
+		$destination_path = 'assets/img/profile/'; // upload path
 
 		foreach ($files as $file) {
 			$originalFilename = $file->getClientOriginalName();
@@ -57,7 +57,7 @@ class FileUploadController extends Controller {
 
 			if ($student) {
 				$person = Person::find($student->person_id);
-				$person->img = "assets/site/images/person_images/". $newFilename;
+				$person->img = "assets/img/profile/". $newFilename;
 				$person->save();
 			}
 		}
