@@ -21,12 +21,12 @@ class LoginController extends Controller
             'password' => 'required',
         ]);
 
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+        if (Auth::attempt(['student_no' => $request->student_no, 'password' => $request->password])) {
             return redirect()->intended('/');
         }
 
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
+            'student_no' => 'The provided credentials do not match our records.',
         ]);
     }
 

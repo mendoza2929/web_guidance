@@ -484,8 +484,8 @@ Credits
                     <div class='fieldset-body' id='login_form'>
                         <button onclick="openLoginInfo();" class='b b-form i i-more' title='Mais Informações'></button>
                         <p class='field'>
-                            <label for='user'>E-MAIL</label>
-                            <input title="Inpit title" name="email" type="text" class="input_field" id="email_field" value="{{ old('email') }}" autofocus />
+                            <label for='user'>Student No</label>
+                            <input title="Inpit title" name="student_no" type="text" class="input_field" id="email_field" value="{{ old('email') }}" autofocus />
                             <span id='valida' class='i i-warning'></span>
                         </p>
                         <p class='field'>
