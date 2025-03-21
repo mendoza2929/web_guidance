@@ -5,10 +5,12 @@ use App\Http\Controllers\Controller;
 use App\Person;
 use App\Student;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
 use Input;
 use Redirect;
+use Illuminate\Support\Str;
 class FileUploadController extends Controller {
 
 	/**
@@ -20,6 +22,56 @@ class FileUploadController extends Controller {
 	{
 		return view('file_upload.index');
 	}
+
+	public function uploadImageStudent(Request $request)
+    {
+        try {
+            if (!$request->hasFile('file')) {
+                return response()->json(['success' => false, 'message' => 'No file uploaded'], 400);
+            }
+
+            $file = $request->file('file');
+            $extension = $file->getClientOriginalExtension();
+
+            // Generate a unique filename
+            $uniqueId = time() . '_' . Str::random(10);
+            $newFilename = $uniqueId . '.' . $extension;
+            $destinationPath = public_path('assets/img/profile');
+
+            // Ensure directory exists
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0777, true);
+            }
+
+            // Move file to destination
+            $file->move($destinationPath, $newFilename);
+
+            // Update authenticated user's person record
+            $user = Auth::user();
+            if ($user && $user->person_id) {
+                $person = Person::find($user->person_id);
+                if ($person) {
+                    $imagePath = "assets/img/profile/" . $newFilename;
+                    $person->img = $imagePath;
+                    $person->save();
+                } else {
+                    return response()->json(['success' => false, 'message' => 'Person record not found'], 404);
+                }
+            } else {
+                return response()->json(['success' => false, 'message' => 'User not authenticated or no person_id'], 401);
+            }
+
+            // Return the image path in the response
+            return response()->json([
+                'success' => true,
+                'message' => 'File uploaded successfully',
+                'image_path' => $imagePath
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Upload error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Upload failed'], 500);
+        }
+    }
 
 	public function uploadImage()
 	{

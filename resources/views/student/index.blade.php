@@ -239,11 +239,13 @@
                 <h2>Personal Data Sheet</h2>
             </div>
 
-            <!-- Right Section: Upload Box -->
-            <div class="upload-box" id="uploadBox">
-                2x2 ID Picture
+            <div class="upload-box" id="uploadBox" style="border: 2px dashed #ccc; padding: 10px; text-align: center; cursor: pointer;">
+                <input type="hidden" name="_token" value="{{ csrf_token() }}" />
+                <label style="font-weight: bold;">2X2 ID PICTURE</label><br>
                 <input type="file" id="imageInput" accept="image/*" style="display: none;">
-                <img id="imagePreview" src="" alt="Image Preview">
+                <div class="preview-container" style="width: 100px; height: 100px; margin: 10px auto; border: 1px solid #ddd;">
+                    <img id="imagePreview" src="" alt="Image Preview" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                </div>
             </div>
         </div>
 
@@ -638,7 +640,125 @@
         
         document.getElementById("studentDate").value = today;
     });
-     
+
+    document.addEventListener('DOMContentLoaded', function() {
+    var uploadBox = document.getElementById('uploadBox');
+    var imageInput = document.getElementById('imageInput');
+    var imagePreview = document.getElementById('imagePreview');
+
+    // Click to upload
+    uploadBox.addEventListener('click', function() {
+        imageInput.click();
+    });
+
+    // Function to upload file
+    function uploadFile(file) {
+        var formData = new FormData();
+        formData.append('file', file);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '{{ url("upload_image_student") }}', true);
+        xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                var data = JSON.parse(xhr.responseText);
+                if (data.success) {
+                    // Display success message
+                    swal('Success', 'Image uploaded and saved successfully', 'success');
+                    // Set the preview to the uploaded image path
+                    imagePreview.src = '/' + data.image_path; // Ensure absolute path
+                    imagePreview.style.display = 'block'; // Keep preview visible
+                    imageInput.value = ''; // Clear input for next upload
+                } else {
+                    swal('Error', data.message || 'Upload failed', 'error');
+                }
+            } else {
+                swal('Error', 'Upload failed: Server error', 'error');
+            }
+        };
+
+        xhr.onerror = function() {
+            swal('Error', 'Upload failed: Network error', 'error');
+        };
+
+        xhr.send(formData);
+    }
+
+    // Handle file selection and auto-upload
+    imageInput.addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        if (file) {
+            // Validate file type
+            var allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+            if (!allowedTypes.includes(file.type)) {
+                swal('Error', 'Please upload only JPG or PNG images.', 'error');
+                this.value = '';
+                return;
+            }
+
+            // Validate file size (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                swal('Error', 'Please upload an image smaller than 2MB.', 'error');
+                this.value = '';
+                return;
+            }
+
+            // Preview image before upload
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+
+                // Resize image to 2x2 inches (192x192 pixels at 96 DPI)
+                resizeImage(e.target.result, 192, 192, function(resizedDataUrl) {
+                    imagePreview.src = resizedDataUrl;
+
+                    // Convert resized image back to file and upload
+                    var blobBin = atob(resizedDataUrl.split(',')[1]);
+                    var array = [];
+                    for (var i = 0; i < blobBin.length; i++) {
+                        array.push(blobBin.charCodeAt(i));
+                    }
+                    var resizedFile = new File([new Uint8Array(array)], file.name, { type: file.type });
+                    uploadFile(resizedFile);
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Drag and drop
+    uploadBox.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadBox.style.borderColor = '#000';
+    });
+
+    uploadBox.addEventListener('dragleave', function() {
+        uploadBox.style.borderColor = '#ccc';
+    });
+
+    uploadBox.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadBox.style.borderColor = '#ccc';
+        imageInput.files = e.dataTransfer.files;
+        imageInput.dispatchEvent(new Event('change')); // Trigger the change event
+    });
+
+    // Image resize function
+    function resizeImage(dataUrl, width, height, callback) {
+        var img = new Image();
+        img.onload = function() {
+            var canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            callback(canvas.toDataURL('image/jpeg', 0.9));
+        };
+        img.src = dataUrl;
+    }
+});
         $(document).ready(function() {
            
     

@@ -70,6 +70,7 @@ Route::get('/user/index', [
 
 Route::get('upload_image_file', 'FileUploadController@index');
 Route::post('upload_image_file', 'FileUploadController@uploadImage');
+Route::post('upload_image_student', 'FileUploadController@uploadImageStudent');
 
 
 

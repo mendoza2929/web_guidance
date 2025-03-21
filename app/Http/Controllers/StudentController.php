@@ -495,6 +495,7 @@ class StudentController extends Controller {
 		]);
 		$user->name = $first_name;
 		$user->email = $email;
+		$user->student_no = $student_no;
 		$user->password = Hash::make($password);
 		$user->role = $role;
 		$user->is_new = 1;
