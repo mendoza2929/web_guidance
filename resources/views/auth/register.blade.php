@@ -294,6 +294,10 @@
 						<span>Last name</span>
 					</label>
 				</div>
+                <label>
+					<input class="input" type="text"  name="student_no" id="student_no"  required>
+					<span>Student No</span>
+				</label>
 				<label>
 					<input class="input" type="text"  name="email" id="email"  required>
 					<span>Email</span>

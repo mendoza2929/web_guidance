@@ -468,6 +468,7 @@ class StudentController extends Controller {
 		$middle_name = \Request::input('middle_name');
 		$last_name = \Request::input('last_name');
 		$email = \Request::input('email');
+		$student_no = \Request::input('student_no');
 		$classification_id = \Request::input('classification_id');
 		$school_department_id = \Request::input('school_department_id');
 		$classification_level_id = \Request::input('classification_level_id');
@@ -483,6 +484,7 @@ class StudentController extends Controller {
 		$student = Student::firstOrCreate([
 			'person_id' => $person->id,
 		]);
+		$student->student_no = $student_no;
 		$student->classification_id = $classification_id;
 		$student->school_department_id = $school_department_id;
 		$student->classification_level_id = $classification_level_id;
