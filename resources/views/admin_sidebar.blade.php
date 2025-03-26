@@ -27,6 +27,9 @@
           <a class="nav-link {{ Request::is('upload_image_file') ? 'active' : '' }}" href="{{URL::to('upload_image_file')}}" role="button">
             <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fas fa-calendar"></span></span><span class="nav-link-text ps-1">Upload Image</span></div>
           </a>
+          <a class="nav-link {{ Request::is('admin/import') ? 'active' : '' }}" href="{{URL::to('admin/import')}}" role="button">
+            <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fas fa-calendar"></span></span><span class="nav-link-text ps-1">Import</span></div>
+          </a>
         </li>
       </ul>
     </div>

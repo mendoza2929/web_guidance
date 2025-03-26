@@ -83,5 +83,11 @@ Route::post('save-conversation', 'StudentController@saveConversation');
 Route::get('/get/classification_data/{classification_id}', 'StudentController@getClassificationLevel');
 
 
+Route::get('admin/import','AdminController@import');
+Route::post('import/import_excel', 'AdminController@importExcel');
+Route::post('pc/post_import_data','AdminController@importPostExcel');
+
+
+
 
 

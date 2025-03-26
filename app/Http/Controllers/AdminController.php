@@ -16,6 +16,7 @@ use App\Person;
 use App\Religion;
 use App\Student;
 use App\Survey;
+use App\User;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Http\Request;
 
@@ -23,7 +24,8 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
 use Input;
 use Redirect;
-
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Hash;
 class AdminController extends Controller {
 
 	/**
@@ -188,6 +190,92 @@ class AdminController extends Controller {
 
 		return view('admin.student_pds',compact('religion_list','citizenship_list','civil_status_list','person','famiy_background','education_background','other_survey','survey','person_id'));
 	}
+
+	public function import(){
+		return view('admin.import');
+	}
+	public function importExcel(Request $request)
+	{
+		if (!$request->hasFile('excelFile')) {
+			return response()->json([
+				'status' => 'error',
+				'message' => 'No file uploaded'
+			], 400);
+		}
+	
+		$file = $request->file('excelFile');
+		ini_set('max_execution_time', 0);
+	
+		try {
+			Excel::load($file, function ($reader) {
+				$data_arr = $reader->get()->toArray();
+	
+				foreach ($data_arr as $data) {
+					
+					$person_details = new Person();
+					$person_details->last_name = $data['last_name'];
+					$person_details->first_name = $data['first_name'];
+					$person_details->middle_name = $data['middle_name'];
+					$person_details->birthdate = $data['birthdate'];
+					
+					$gender = strtoupper(trim($data['gender']));
+					$person_details->gender_id = ($gender === 'MALE') ? 1 : (($gender === 'FEMALE') ? 2 : null);
+					$person_details->save();
+	
+		
+					$student_details = Student::firstOrCreate(
+						['person_id' => $person_details->id]
+					);
+					$student_details->student_no = $data['student_no'];
+					$student_details->classification_id = $data['classification_id'];
+					$student_details->classification_level_id = $data['classification_level_id'];
+					$student_details->school_department_id = $data['school_department_id'];
+					$student_details->save();
+	
+					$gen_user_details = User::firstOrCreate(
+						['person_id' => $person_details->id]
+					);
+
+					$gen_user_details->student_no = 'ascb-' . $data['student_no'];
+					$gen_user_details->email = 'ascb-' . $data['student_no'];
+					$gen_user_details->password = Hash::make('ascb-' . $data['student_no']);
+					$gen_user_details->role = 'student';
+					$gen_user_details->is_new = 1;
+					$gen_user_details->save();
+				}
+			});
+	
+			return response()->json([
+				'status' => 'success',
+				'message' => 'Data imported successfully'
+			]);
+	
+		} catch (\Exception $e) {
+			return response()->json([
+				'status' => 'error',
+				'message' => 'Import failed: ' . $e->getMessage()
+			], 500);
+		}
+	}
+	public function importPostExcel()
+    {
+        if(\Request::hasFile('excelFile')) {
+            $file = \Request::file('excelFile');
+            $data_arr = [];
+            $column_arr = [];
+            \Excel::load($file, function($reader) use(&$data_arr, &$column_arr) {
+                $data_arr[] = $reader->get()->toArray();
+                $column_arr = count($reader->get()->toArray()) > 0 ? str_replace("_"," ", array_keys($reader->get()->toArray()[0])) : [];
+            });
+            
+            $columns = [];
+            foreach($column_arr as $column) {
+                $columns[str_replace(" ","_",$column)] = mb_convert_case($column, MB_CASE_TITLE, "UTF-8");
+            }
+                
+            return response()->json(['data' => $data_arr, 'columns' => $columns]);
+        }
+    } 
 
 
 	public function chatBot(){
