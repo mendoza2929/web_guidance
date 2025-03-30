@@ -9,9 +9,15 @@ Route::get('/studentForm', 'StudentController@index');
 Route::post('student/create_pds', 'StudentController@createPds');
 Route::post('student/update_pds', 'StudentController@update_pds');
 
-// Route::pos
 
-Route::post('student/studentFormSave', 'StudentController@store');
+// routes/web.php
+Route::get('aptitude-test', 'StudentController@aptitudeTest');
+Route::post('aptitude_submit', 'StudentController@aptitudeSubmit');
+
+
+// Route::post
+
+Route::post('student/studentFormSave', 'StuddentController@store');
 
 
 Route::get('admin/student_pds', 'AdminController@getStudentPds');

@@ -1,5 +1,8 @@
 <?php namespace App\Http\Controllers;
 
+use App\AptitudeChoices;
+use App\AptitudeQuestion;
+use App\AptitudeResults;
 use App\ChatbotConversation;
 use App\Citizenship;
 use App\CivilStatus;
@@ -20,6 +23,8 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
 class StudentController extends Controller {
 
 	/**
@@ -49,6 +54,137 @@ class StudentController extends Controller {
 
 		// return view('student.index',compact('religion_list','citizenship_list','gender_list','civil_status_list'));
 	}
+
+	public function aptitudeTest(Request $request)
+{
+    // Get the authenticated user's person_id
+    $gen_user = Auth::user()->person_id;
+    $user = Student::find($gen_user);
+
+    // Fetch all aptitude questions with their choices including choice IDs
+    $aptitude_questions = AptitudeQuestion::join('classification', 'aptitude_question.classification_id', '=', 'classification.id')
+        ->leftJoin('classification_level', 'aptitude_question.classification_level_id', '=', 'classification_level.id')
+        ->join('aptitude_choices', 'aptitude_question.id', '=', 'aptitude_choices.question_id')
+        ->where('aptitude_question.classification_id', $user->classification_id)
+        ->select(
+            'aptitude_question.*',
+            'aptitude_choices.id as choice_id',
+            'aptitude_choices.choices as choices',
+            'aptitude_choices.is_correct'
+        )
+        ->orderByRaw('RAND()')
+        ->get();
+
+    $questions = [];
+    foreach ($aptitude_questions as $item) {
+        $question_id = $item->id;
+        if (!isset($questions[$question_id])) {
+            $questions[$question_id] = [
+                'id' => $item->id,
+                'question' => $item->question,
+                'choices' => [],
+            ];
+        }
+        $questions[$question_id]['choices'][] = [
+            'id' => $item->choice_id,  // Add choice ID
+            'choice' => $item->choices,
+            'is_correct' => $item->is_correct,
+        ];
+    }
+    $questions = array_values($questions);
+
+    $current_question_index = $request->query('question', 0);
+    $test_started = $request->query('start', false);
+
+    if (!$test_started) {
+        return view('student.aptitude_test_intro', [
+            'total_questions' => count($questions),
+        ]);
+    }
+
+    // Ensure the current question index is valid
+    if ($current_question_index < 0 || $current_question_index >= count($questions)) {
+        $current_question_index = 0;
+    }
+
+    return view('student.aptitude_test', [
+        'questions' => $questions,
+        'current_question_index' => $current_question_index,
+        'total_questions' => count($questions),
+    ]);
+}
+public function aptitudeSubmit(Request $request)
+{
+    try {
+
+		$gen_user = Auth::user()->person_id;
+		$user = Student::find($gen_user);
+		// dd($user);
+    
+        // Get the selected choice from the aptitude_choices table
+        $selectedChoice = DB::table('aptitude_choices')
+            ->where('id', $request->answer)
+            ->where('question_id', $request->question_id) // Ensure the choice belongs to the question
+            ->first();
+
+        if (!$selectedChoice) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid choice selected for this question.'
+            ], 400);
+        }
+
+        // Check if the selected choice is correct
+        $isCorrect = $selectedChoice->is_correct == 1; // 1 means correct, NULL or 0 means incorrect
+
+        // Get the question
+        $question = AptitudeQuestion::find($request->question_id);
+        if (!$question) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Question not found.'
+            ], 404);
+        }
+
+        // $questions = $this->getQuestionsForUser(); // Fetch all questions
+        // $currentIndex = $request->input('current_question_index', 0);
+
+        // Save the response
+        $response = AptitudeResults::create([
+            'student_id' =>$user->id,
+            'question_id' => $request->question_id,
+            'answer_id' => $request->answer, // Store the actual answer text
+            'is_correct' => $isCorrect // Store whether the answer is correct
+        ]);
+
+        // $isLastQuestion = ($currentIndex >= count($questions) - 1);
+
+        // Return the result
+        return response()->json([
+            'success' => true,
+            'is_correct' => $isCorrect, // Inform the user if their answer was correct
+            'correct_answer' => $isCorrect ? null : $this->getCorrectAnswer($request->question_id) // If incorrect, show the correct answer
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error saving answer: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+// Helper method to get the correct answer for a question
+private function getCorrectAnswer($questionId)
+{
+    $correctChoice = DB::table('aptitude_choices')
+        ->where('question_id', $questionId)
+        ->where('is_correct', 1)
+        ->first();
+
+    return $correctChoice ? $correctChoice->choices : 'No correct answer found.';
+}
+
 	public function chatBot(Request $request)
 	{
 		session_start(); // Start a session to store conversation state

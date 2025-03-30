@@ -240,186 +240,103 @@
 		</script>
 
 		<input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
-
-        {{-- <div class="card mb-3" id="chat-container">
+        <div class="card mb-3">
             <div class="card-body">
-        
+                <div class="row flex-between-center">
+                    <div class="col-md">
+                        <h5 class="mb-2 mb-md-0">Aptitude Test</h5>
+                    </div>
                 </div>
             </div>
-        </div> --}}
+        </div>
+ 
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="row flex-between-center">
+                    <div class="col-md">
+                        <h5 class="mb-2 mb-md-0">Aptitude Test</h5>
+                    </div>
+                    <div class="col-md-auto">
+                        <div class="d-flex align-items-center">
+                            <span class="me-2">Time remaining:</span>
+                            <div class="fs-1 text-primary" id="timer">30:00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         
-          
-        <iframe id="JotFormIFrame-019532d807e47f4fb9ab8bcb18e2b2c005ed"
-        title="Chatbot: School Guidance Assistant" onload="window.parent.scrollTo(0,0)"
-        allowtransparency="true" allow="geolocation; microphone; camera; fullscreen"
-        src="https://agent.jotform.com/019532d807e47f4fb9ab8bcb18e2b2c005ed?embedMode=iframe&background=1&shadow=1"
-        frameborder="0" style="
-          min-width:100%;
-          max-width:100%;
-          height:688px;
-          border:none;
-          width:100%;
-        " scrolling="no">
-</iframe>
-<script src='https://cdn.jotfor.ms/s/umd/latest/for-form-embed-handler.js'></script>
-<script>
-  window.jotformEmbedHandler("iframe[id='JotFormIFrame-019532d807e47f4fb9ab8bcb18e2b2c005ed']",
-    "https://www.jotform.com");
-    
-
-  // Listen for messages from the iframe
-  window.addEventListener('message', function(event) {
-    if (event.origin !== "https://agent.jotform.com") return;
-
-    console.log("Full event data:", event.data); // Debugging output
-
-    const data = event.data?.message || {};
-    console.log("Extracted data:", data); // See if it's extracting correctly
-
-    // Extract message from response object if available
-    const responseMessage = data?.response?.message || data?.message || null;
-    console.log("Extracted responseMessage:", responseMessage); 
-
-    if (!responseMessage) return; // Prevent sending empty messages
-
-    let previousQuestion = sessionStorage.getItem('lastQuestion') || "Unknown question";
-    sessionStorage.setItem('lastQuestion', responseMessage);
-
-    $.ajax({
-        url: "{{ url('save-conversation') }}",
-        type: 'POST',
-        data: {
-            question: previousQuestion,  
-            response: responseMessage,  
-            _token: "{{ csrf_token() }}"
-        },
-        success: function(response) {
-            console.log('Saved successfully:', response);
-        },
-        error: function(xhr, status, error) {
-            console.error('Error saving message:', error);
-        }
-    });
-});
+        <div class="card">
+            <div class="card-body">
+                <form action="" method="POST">
+                    @csrf
+                    <input type="hidden" name="question_id" value="{{ $question->id }}">
+                    
+                    <div class="question-container">
+                        <h4 class="question-number">Question {{ $currentIndex + 1 }} of {{ $totalQuestions }}</h4>
+                        <div class="question-text mb-4">
+                            {{ $question->question }}
+                        </div>
+                        
+                        <div class="choices-container">
+                            @foreach($choices as $choice)
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" 
+                                       name="answer" id="choice{{ $choice->id }}" 
+                                       value="{{ $choice->id }}">
+                                <label class="form-check-label" for="choice{{ $choice->id }}">
+                                    {{ $choice->choices }}
+                                </label>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    
+                    {{-- <div class="navigation-buttons mt-4">
+                        @if($currentIndex > 0)
+                        <a href="{{ route('aptitude.question', ['id' => Session::get('aptitude_question_ids')[$currentIndex - 1]]) }}" 
+                           class="btn btn-secondary">Previous</a>
+                        @endif
+                        
+                        @if($currentIndex < $totalQuestions - 1)
+                        <button type="submit" class="btn btn-primary float-end">Next</button>
+                        @else
+                        <button type="submit" class="btn btn-success float-end">Submit Test</button>
+                        @endif
+                    </div> --}}
+                </form>
+            </div>
+        </div>
 
 
-</script>
-
-        
-          
-		  
-
-
-
-@stop
 
 @section('scripts')
-<script src='https://cdn.jotfor.ms/s/umd/latest/for-embedded-agent.js'></script>
 <script>
+    // Timer functionality
+    function startTimer(duration, display) {
+        var timer = duration, minutes, seconds;
+        setInterval(function () {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
 
-// window.addEventListener("DOMContentLoaded", function() {
-//     window.AgentInitializer.init({
-//       agentRenderURL: "https://agent.jotform.com/019532d807e47f4fb9ab8bcb18e2b2c005ed",
-//       rootId: "JotformAgent-019532d807e47f4fb9ab8bcb18e2b2c005ed",
-//       formID: "019532d807e47f4fb9ab8bcb18e2b2c005ed",
-//       queryParams: ["skipWelcome=1", "maximizable=1"],
-//       domain: "https://www.jotform.com",
-//       isDraggable: false,
-//       background: "linear-gradient(180deg, #2462BA 0%, #2462BA 100%)",
-//       buttonBackgroundColor: "#02357D",
-//       buttonIconColor: "#FFF",
-//       variant: false,
-//       customizations: {
-//         "greeting": "Yes",
-//         "greetingMessage": "Hi! How can I assist you?",
-//         "pulse": "Yes",
-//         "position": "right"
-//       },
-//       isVoice: undefined,
-//       onMessageSent: function(message) {
-//         // Send the user's question to the Laravel backend
-//         fetch('/save-chat', {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // Add CSRF token for Laravel
-//             },
-//             body: JSON.stringify({
-//                 question: message,
-//                 response: null // You can update this later with the AI's response
-//             })
-//         })
-//         .then(response => response.json())
-//         .then(data => console.log(data))
-//         .catch(error => console.error('Error:', error));
-//       }
-//     });
-// });
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
 
+            display.textContent = minutes + ":" + seconds;
 
+            if (--timer < 0) {
+                timer = duration;
+                // Auto-submit when time is up
+                window.location.href = "{{ route('aptitude.submit') }}";
+            }
+        }, 1000);
+    }
 
-    
-
-// $(document).ready(function() {
-    
-
-//     setTimeout(function() {
-//         $("#chat-box").append(`<div class="message bot">Hello! How can I assist you today?</div>`);
-//         scrollToBottom();
-//     }, 1000);
-
-//     $("#chatBotForm").submit(function(event) {
-//         event.preventDefault();
-//         sendMessage();
-//     });
-
-//     $("#faq-select").change(function() {
-//         let selectedQuestion = $(this).val();
-//         if (selectedQuestion !== "") {
-//             $("#user-input").val(selectedQuestion);
-//             sendMessage();
-//             $(this).val(""); 
-//         }
-//     });
-
-//     $("#close-btn").click(function() {
-//         $("#chat-container").fadeOut();
-//     });
-
-//     function sendMessage() {
-//         let userMessage = $("#user-input").val().trim();
-//         if (userMessage === "") return;
-
-//         $("#chat-box").append(`<div class="message user">${userMessage}</div>`);
-//         $("#user-input").val("");
-
-//         let formData = new FormData();
-//         formData.append("_token", "{{ csrf_token() }}");
-//         formData.append("question", userMessage);
-
-//         $.ajax({
-//             url: "{{ url('chatbot') }}",
-//             type: "POST",
-//             data: formData,
-//             processData: false,
-//             contentType: false,
-//             success: function(response) {
-//                 $("#chat-box").append(`<div class="message bot">${response.response}</div>`);
-//                 scrollToBottom();
-//             },
-//             error: function() {
-//                 $("#chat-box").append(`<div class="message bot">Sorry, something went wrong.</div>`);
-//                 scrollToBottom();
-//             }
-//         });
-//     }
-
-//     function scrollToBottom() {
-//         $(".chat-box").animate({ scrollTop: $(".chat-box")[0].scrollHeight }, 500);
-//     }
-// });
-
-
+    window.onload = function () {
+        var thirtyMinutes = 60 * 30,
+            display = document.querySelector('#timer');
+        startTimer(thirtyMinutes, display);
+    };
 </script>
 
 @stop

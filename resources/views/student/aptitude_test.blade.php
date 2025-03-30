@@ -117,8 +117,24 @@
 .chat-input button:hover {
     background: #0056b3;
 }
-
-
+.card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .form-check-input {
+            margin-right: 10px;
+        }
+        .btn-nav {
+            padding: 10px 20px;
+        }
+        .btn-prev {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-next {
+            background-color: #28a745;
+            color: white;
+        }
 </style>
 
 <div class="container-fluid">
@@ -239,189 +255,116 @@
                 }
 		</script>
 
-		<input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
 
-        {{-- <div class="card mb-3" id="chat-container">
+        <div class="card mb-3">
             <div class="card-body">
-        
+                <div class="row flex-between-center">
+                    <div class="col-md">
+                        <h5 class="mb-2 mb-md-0">Aptitude Test</h5>
+                    </div>
                 </div>
             </div>
-        </div> --}}
-        
-          
-        <iframe id="JotFormIFrame-019532d807e47f4fb9ab8bcb18e2b2c005ed"
-        title="Chatbot: School Guidance Assistant" onload="window.parent.scrollTo(0,0)"
-        allowtransparency="true" allow="geolocation; microphone; camera; fullscreen"
-        src="https://agent.jotform.com/019532d807e47f4fb9ab8bcb18e2b2c005ed?embedMode=iframe&background=1&shadow=1"
-        frameborder="0" style="
-          min-width:100%;
-          max-width:100%;
-          height:688px;
-          border:none;
-          width:100%;
-        " scrolling="no">
-</iframe>
-<script src='https://cdn.jotfor.ms/s/umd/latest/for-form-embed-handler.js'></script>
-<script>
-  window.jotformEmbedHandler("iframe[id='JotFormIFrame-019532d807e47f4fb9ab8bcb18e2b2c005ed']",
-    "https://www.jotform.com");
-    
-
-  // Listen for messages from the iframe
-  window.addEventListener('message', function(event) {
-    if (event.origin !== "https://agent.jotform.com") return;
-
-    console.log("Full event data:", event.data); // Debugging output
-
-    const data = event.data?.message || {};
-    console.log("Extracted data:", data); // See if it's extracting correctly
-
-    // Extract message from response object if available
-    const responseMessage = data?.response?.message || data?.message || null;
-    console.log("Extracted responseMessage:", responseMessage); 
-
-    if (!responseMessage) return; // Prevent sending empty messages
-
-    let previousQuestion = sessionStorage.getItem('lastQuestion') || "Unknown question";
-    sessionStorage.setItem('lastQuestion', responseMessage);
-
-    $.ajax({
-        url: "{{ url('save-conversation') }}",
-        type: 'POST',
-        data: {
-            question: previousQuestion,  
-            response: responseMessage,  
-            _token: "{{ csrf_token() }}"
-        },
-        success: function(response) {
-            console.log('Saved successfully:', response);
-        },
-        error: function(xhr, status, error) {
-            console.error('Error saving message:', error);
-        }
-    });
-});
+        </div>
+ 
+        <div class="container mt-5">
+            <div class="card mb-3">
+                <form id="aptitudeForm">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="question_id" value="{{ $questions[$current_question_index]['id'] ? :  $current_question_index }}">
+                    <input type="hidden" name="current_question_index" value="{{ $current_question_index }}">
+                    <div class="card-body">
+                        <h5 class="mb-2">Aptitude Test</h5>
+                        @if (isset($questions[$current_question_index]))
+                            <div class="question mt-4">
+                                <p><strong>{{ $current_question_index + 1 }}.</strong> {{ $questions[$current_question_index]['question'] }}</p>
+                                @foreach ($questions[$current_question_index]['choices'] as $index => $choice)
+                                    <div class="form-check">
+                                        <!-- Use choice ID as value instead of choice text -->
+                                        <input class="form-check-input" 
+                                               type="radio" 
+                                               name="answer" 
+                                               id="choice_{{ $choice['id'] }}" 
+                                               value="{{ $choice['id'] }}">
+                                        <label class="form-check-label" for="choice_{{ $choice['id'] }}">
+                                            {{ chr(65 + $index) }}. {{ $choice['choice'] }}
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div class="navigation mt-4 d-flex justify-content-between">
+                                @if ($current_question_index > 0)
+                                    <a href="{{ url('aptitude-test?start=true&question=' . ($current_question_index - 1)) }}" class="btn btn-prev btn-nav">Previous</a>
+                                @else
+                                    <span></span>
+                                @endif
+                                @if ($current_question_index < $total_questions - 1)
+                                    <button type="submit" class="btn btn-next btn-nav" id="submit">Next</button>
+                                @else
+                                    <button type="submit" class="btn btn-next btn-nav" id="submit">Submit</button>
+                                @endif
+                            </div>
+                        @else
+                            <p>No questions available.</p>
+                        @endif
+                    </div>
+                </form>
+            </div>
+        </div>
 
 
-</script>
-
-        
-          
-		  
-
-
-
-@stop
 
 @section('scripts')
-<script src='https://cdn.jotfor.ms/s/umd/latest/for-embedded-agent.js'></script>
 <script>
-
-// window.addEventListener("DOMContentLoaded", function() {
-//     window.AgentInitializer.init({
-//       agentRenderURL: "https://agent.jotform.com/019532d807e47f4fb9ab8bcb18e2b2c005ed",
-//       rootId: "JotformAgent-019532d807e47f4fb9ab8bcb18e2b2c005ed",
-//       formID: "019532d807e47f4fb9ab8bcb18e2b2c005ed",
-//       queryParams: ["skipWelcome=1", "maximizable=1"],
-//       domain: "https://www.jotform.com",
-//       isDraggable: false,
-//       background: "linear-gradient(180deg, #2462BA 0%, #2462BA 100%)",
-//       buttonBackgroundColor: "#02357D",
-//       buttonIconColor: "#FFF",
-//       variant: false,
-//       customizations: {
-//         "greeting": "Yes",
-//         "greetingMessage": "Hi! How can I assist you?",
-//         "pulse": "Yes",
-//         "position": "right"
-//       },
-//       isVoice: undefined,
-//       onMessageSent: function(message) {
-//         // Send the user's question to the Laravel backend
-//         fetch('/save-chat', {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // Add CSRF token for Laravel
-//             },
-//             body: JSON.stringify({
-//                 question: message,
-//                 response: null // You can update this later with the AI's response
-//             })
-//         })
-//         .then(response => response.json())
-//         .then(data => console.log(data))
-//         .catch(error => console.error('Error:', error));
-//       }
-//     });
-// });
-
-
-
-    
-
-// $(document).ready(function() {
-    
-
-//     setTimeout(function() {
-//         $("#chat-box").append(`<div class="message bot">Hello! How can I assist you today?</div>`);
-//         scrollToBottom();
-//     }, 1000);
-
-//     $("#chatBotForm").submit(function(event) {
-//         event.preventDefault();
-//         sendMessage();
-//     });
-
-//     $("#faq-select").change(function() {
-//         let selectedQuestion = $(this).val();
-//         if (selectedQuestion !== "") {
-//             $("#user-input").val(selectedQuestion);
-//             sendMessage();
-//             $(this).val(""); 
-//         }
-//     });
-
-//     $("#close-btn").click(function() {
-//         $("#chat-container").fadeOut();
-//     });
-
-//     function sendMessage() {
-//         let userMessage = $("#user-input").val().trim();
-//         if (userMessage === "") return;
-
-//         $("#chat-box").append(`<div class="message user">${userMessage}</div>`);
-//         $("#user-input").val("");
-
-//         let formData = new FormData();
-//         formData.append("_token", "{{ csrf_token() }}");
-//         formData.append("question", userMessage);
-
-//         $.ajax({
-//             url: "{{ url('chatbot') }}",
-//             type: "POST",
-//             data: formData,
-//             processData: false,
-//             contentType: false,
-//             success: function(response) {
-//                 $("#chat-box").append(`<div class="message bot">${response.response}</div>`);
-//                 scrollToBottom();
-//             },
-//             error: function() {
-//                 $("#chat-box").append(`<div class="message bot">Sorry, something went wrong.</div>`);
-//                 scrollToBottom();
-//             }
-//         });
-//     }
-
-//     function scrollToBottom() {
-//         $(".chat-box").animate({ scrollTop: $(".chat-box")[0].scrollHeight }, 500);
-//     }
-// });
-
-
+ 
+ $(document).ready(function() {
+    $("#aptitudeForm").submit(function(e) {
+        e.preventDefault();
+        
+        let formData = new FormData(this);
+        
+        $.ajax({
+            url: "{{ url('aptitude_submit') }}",
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: response.is_last ? 'Test Completed!' : 'Answer Submitted!',
+                        showConfirmButton: false,
+                        timer: 3000
+                    }).then(function() {
+                        if (!response.is_last) {
+                            // Move to next question
+                            window.location.href = "{{ url('aptitude-test?start=true&question=' . ($current_question_index + 1)) }}";
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: response.message || 'Failed to submit answer.',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                }
+            },
+            error: function(xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'An error occurred while submitting.',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            }
+        });
+    });
+});
 </script>
-
 @stop
 
 
