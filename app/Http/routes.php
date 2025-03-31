@@ -11,10 +11,12 @@ Route::post('student/update_pds', 'StudentController@update_pds');
 
 
 // routes/web.php
-Route::get('aptitude-test', 'StudentController@aptitudeTest');
-Route::post('aptitude_submit', 'StudentController@aptitudeSubmit');
-
-
+// routes/web.php
+Route::get('aptitude-test', ['as' => 'aptitude.test', 'uses' => 'StudentController@aptitudeTest']);
+Route::post('aptitude-test/save-answer', ['as' => 'aptitude.save-answer', 'uses' => 'StudentController@saveAnswer']);
+Route::post('aptitude_submit', ['as' => 'aptitude.submit', 'uses' => 'StudentController@aptitudeSubmit']);
+Route::get('aptitude-test/answers', ['as' => 'aptitude.get-answers', 'uses' => 'StudentController@getAnswers']);
+Route::get('aptitude-test/results', ['as' => 'aptitude.results', 'uses' => 'StudentController@aptitudeResults']);
 // Route::post
 
 Route::post('student/studentFormSave', 'StuddentController@store');

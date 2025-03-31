@@ -135,6 +135,16 @@
             background-color: #28a745;
             color: white;
         }
+        .question-nav .btn {
+        width: 40px;
+        text-align: center;
+    }
+    .form-check:hover {
+        background-color: #f8f9fa;
+    }
+    .btn-nav {
+        min-width: 100px;
+    }
 </style>
 
 <div class="container-fluid">
@@ -270,21 +280,42 @@
             <div class="card mb-3">
                 <form id="aptitudeForm">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                    <input type="hidden" name="question_id" value="{{ $questions[$current_question_index]['id'] ? :  $current_question_index }}">
+                    <input type="hidden" name="question_id" value="{{ $questions[$current_question_index]['id'] }}">
                     <input type="hidden" name="current_question_index" value="{{ $current_question_index }}">
                     <div class="card-body">
                         <h5 class="mb-2">Aptitude Test</h5>
+                        <!-- Progress Bar -->
+                        <div class="progress mb-3">
+                            <div class="progress-bar bg-primary" role="progressbar" 
+                                 style="width: {{ (($current_question_index + 1) / $total_questions) * 100 }}%" 
+                                 aria-valuenow="{{ $current_question_index + 1 }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="{{ $total_questions }}">
+                                {{ $current_question_index + 1 }} / {{ $total_questions }} ({{ number_format((($current_question_index + 1) / $total_questions) * 100, 0) }}%)
+                            </div>
+                        </div>
+        
+                        <!-- Question Navigation -->
+                        <div class="question-nav mb-3 d-flex justify-content-center">
+                            @for ($i = 0; $i < $total_questions; $i++)
+                                <a href="{{ route('aptitude.test') }}?start=true&question={{ $i }}" 
+                                   class="btn btn-sm {{ $i == $current_question_index ? 'btn-primary' : 'btn-outline-primary' }} mx-1">
+                                    {{ $i + 1 }}
+                                </a>
+                            @endfor
+                        </div>
+        
                         @if (isset($questions[$current_question_index]))
                             <div class="question mt-4">
                                 <p><strong>{{ $current_question_index + 1 }}.</strong> {{ $questions[$current_question_index]['question'] }}</p>
                                 @foreach ($questions[$current_question_index]['choices'] as $index => $choice)
-                                    <div class="form-check">
-                                        <!-- Use choice ID as value instead of choice text -->
+                                    <div class="form-check mb-2 p-2 rounded {{ session('answers.' . $questions[$current_question_index]['id']) == $choice['id'] ? 'bg-light border border-primary' : '' }}">
                                         <input class="form-check-input" 
                                                type="radio" 
                                                name="answer" 
                                                id="choice_{{ $choice['id'] }}" 
-                                               value="{{ $choice['id'] }}">
+                                               value="{{ $choice['id'] }}"
+                                               {{ session('answers.' . $questions[$current_question_index]['id']) == $choice['id'] ? 'checked' : '' }}>
                                         <label class="form-check-label" for="choice_{{ $choice['id'] }}">
                                             {{ chr(65 + $index) }}. {{ $choice['choice'] }}
                                         </label>
@@ -293,14 +324,14 @@
                             </div>
                             <div class="navigation mt-4 d-flex justify-content-between">
                                 @if ($current_question_index > 0)
-                                    <a href="{{ url('aptitude-test?start=true&question=' . ($current_question_index - 1)) }}" class="btn btn-prev btn-nav">Previous</a>
+                                    <button type="button" class="btn btn-outline-secondary btn-nav" onclick="navigate({{ $current_question_index - 1 }})">Previous</button>
                                 @else
                                     <span></span>
                                 @endif
                                 @if ($current_question_index < $total_questions - 1)
-                                    <button type="submit" class="btn btn-next btn-nav" id="submit">Next</button>
+                                    <button type="button" class="btn btn-primary btn-nav" onclick="navigate({{ $current_question_index + 1 }})">Next</button>
                                 @else
-                                    <button type="submit" class="btn btn-next btn-nav" id="submit">Submit</button>
+                                    <button type="submit" class="btn btn-success btn-nav" id="submit">Submit Test</button>
                                 @endif
                             </div>
                         @else
@@ -317,38 +348,73 @@
 <script>
  
  $(document).ready(function() {
+    let answers = {};
+
+    // Load previously selected answers
+    $.get('{{ url("aptitude-test/answers") }}', function(response) {
+        answers = response.answers || {};
+        updateRadioButtons();
+    });
+
+    // Handle radio button changes
+    $('input[name="answer"]').change(function() {
+        const questionId = $('input[name="question_id"]').val();
+        const answerId = $(this).val();
+        saveAnswer(questionId, answerId);
+    });
+
+    // Save answer function
+    function saveAnswer(questionId, answerId) {
+        answers[questionId] = answerId;
+        $.post('{{ url("aptitude-test/save-answer") }}', {
+            _token: '{{ csrf_token() }}',
+            question_id: questionId,
+            answer: answerId
+        }, function(response) {
+            if (!response.success) {
+                console.error('Failed to save answer');
+            }
+        });
+    }
+
+    // Form submission
     $("#aptitudeForm").submit(function(e) {
         e.preventDefault();
-        
-        let formData = new FormData(this);
-        
+
+        const totalQuestions = {{ $total_questions }};
+        const answeredQuestions = Object.keys(answers).length;
+
+        if (answeredQuestions < totalQuestions) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Incomplete Test',
+                text: `You have answered ${answeredQuestions} out of ${totalQuestions} questions. Please answer all questions before submitting.`,
+            });
+            return;
+        }
+
         $.ajax({
-            url: "{{ url('aptitude_submit') }}",
+            url: '{{ url("aptitude_submit") }}',
             type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
+            data: {
+                _token: '{{ csrf_token() }}',
+                answers: answers
+            },
             success: function(response) {
                 if (response.success) {
                     Swal.fire({
                         icon: 'success',
-                        title: 'Success!',
-                        text: response.is_last ? 'Test Completed!' : 'Answer Submitted!',
-                        showConfirmButton: false,
+                        title: 'Test Completed!',
+                        text: response.message,
                         timer: 3000
-                    }).then(function() {
-                        if (!response.is_last) {
-                            // Move to next question
-                            window.location.href = "{{ url('aptitude-test?start=true&question=' . ($current_question_index + 1)) }}";
-                        }
+                    }).then(() => {
+                        window.location.href = '{{ url("aptitude-test/results") }}';
                     });
                 } else {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Error!',
-                        text: response.message || 'Failed to submit answer.',
-                        showConfirmButton: false,
-                        timer: 3000
+                        title: 'Submission Failed',
+                        text: response.message,
                     });
                 }
             },
@@ -357,12 +423,30 @@
                     icon: 'error',
                     title: 'Error!',
                     text: 'An error occurred while submitting.',
-                    showConfirmButton: false,
-                    timer: 3000
                 });
             }
         });
     });
+
+    // Navigation function
+    window.navigate = function(index) {
+        const questionId = $('input[name="question_id"]').val();
+        const selectedAnswer = $('input[name="answer"]:checked').val();
+
+        if (selectedAnswer) {
+            saveAnswer(questionId, selectedAnswer);
+        }
+
+        window.location.href = '{{ url("aptitude-test") }}?start=true&question=' + index;
+    };
+
+    function updateRadioButtons() {
+        const questionId = $('input[name="question_id"]').val();
+        if (answers[questionId]) {
+            $(`input[value="${answers[questionId]}"]`).prop('checked', true);
+            $(`input[value="${answers[questionId]}"]`).closest('.form-check').addClass('bg-light border border-primary');
+        }
+    }
 });
 </script>
 @stop

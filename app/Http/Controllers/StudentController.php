@@ -54,14 +54,14 @@ class StudentController extends Controller {
 
 		// return view('student.index',compact('religion_list','citizenship_list','gender_list','civil_status_list'));
 	}
-
 	public function aptitudeTest(Request $request)
 {
-    // Get the authenticated user's person_id
     $gen_user = Auth::user()->person_id;
     $user = Student::find($gen_user);
 
-    // Fetch all aptitude questions with their choices including choice IDs
+    // Check if the student has already completed the test
+    $hasResults = AptitudeResults::where('student_id', $user->id)->exists();
+
     $aptitude_questions = AptitudeQuestion::join('classification', 'aptitude_question.classification_id', '=', 'classification.id')
         ->leftJoin('classification_level', 'aptitude_question.classification_level_id', '=', 'classification_level.id')
         ->join('aptitude_choices', 'aptitude_question.id', '=', 'aptitude_choices.question_id')
@@ -86,23 +86,30 @@ class StudentController extends Controller {
             ];
         }
         $questions[$question_id]['choices'][] = [
-            'id' => $item->choice_id,  // Add choice ID
+            'id' => $item->choice_id,
             'choice' => $item->choices,
             'is_correct' => $item->is_correct,
         ];
     }
     $questions = array_values($questions);
 
-    $current_question_index = $request->query('question', 0);
+    // Store questions in session to maintain order
+    if (!session()->has('aptitude_questions')) {
+        session(['aptitude_questions' => $questions]);
+    } else {
+        $questions = session('aptitude_questions');
+    }
+
+    $current_question_index = (int) $request->query('question', 0);
     $test_started = $request->query('start', false);
 
     if (!$test_started) {
         return view('student.aptitude_test_intro', [
             'total_questions' => count($questions),
+            'hasResults' => $hasResults, // Pass the flag to the intro view
         ]);
     }
 
-    // Ensure the current question index is valid
     if ($current_question_index < 0 || $current_question_index >= count($questions)) {
         $current_question_index = 0;
     }
@@ -111,78 +118,127 @@ class StudentController extends Controller {
         'questions' => $questions,
         'current_question_index' => $current_question_index,
         'total_questions' => count($questions),
+        'hasResults' => $hasResults, // Pass the flag to the test view
     ]);
 }
-public function aptitudeSubmit(Request $request)
+
+    public function saveAnswer(Request $request)
+    {
+		$answers = session('answers', []);
+		$answers[$request->question_id] = $request->answer;
+		session(['answers' => $answers]);
+	
+		return response()->json(['success' => true]);
+    }
+
+    public function getAnswers(Request $request)
+    {
+        return response()->json([
+            'answers' => session('answers', [])
+        ]);
+    }
+
+	public function aptitudeSubmit(Request $request)
 {
     try {
+        $gen_user = Auth::user()->person_id;
+        $user = Student::findOrFail($gen_user);
+        $answers = $request->answers;
+        $questions = session('aptitude_questions', []);
 
-		$gen_user = Auth::user()->person_id;
-		$user = Student::find($gen_user);
-		// dd($user);
-    
-        // Get the selected choice from the aptitude_choices table
-        $selectedChoice = DB::table('aptitude_choices')
-            ->where('id', $request->answer)
-            ->where('question_id', $request->question_id) // Ensure the choice belongs to the question
-            ->first();
-
-        if (!$selectedChoice) {
+        if (empty($answers) || empty($questions)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid choice selected for this question.'
+                'message' => 'No answers or questions found.'
             ], 400);
         }
 
-        // Check if the selected choice is correct
-        $isCorrect = $selectedChoice->is_correct == 1; // 1 means correct, NULL or 0 means incorrect
-
-        // Get the question
-        $question = AptitudeQuestion::find($request->question_id);
-        if (!$question) {
+        // Validate that all questions have been answered
+        if (count($answers) < count($questions)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Question not found.'
-            ], 404);
+                'message' => 'Please answer all questions before submitting.'
+            ], 400);
         }
 
-        // $questions = $this->getQuestionsForUser(); // Fetch all questions
-        // $currentIndex = $request->input('current_question_index', 0);
+        foreach ($questions as $question) {
+            $questionId = $question['id'];
+            $answerId = $answers[$questionId] ? : null;
 
-        // Save the response
-        $response = AptitudeResults::create([
-            'student_id' =>$user->id,
-            'question_id' => $request->question_id,
-            'answer_id' => $request->answer, // Store the actual answer text
-            'is_correct' => $isCorrect // Store whether the answer is correct
-        ]);
+            if (!$answerId) {
+                continue; // Skip if no answer provided (optional: you could enforce all answers here)
+            }
 
-        // $isLastQuestion = ($currentIndex >= count($questions) - 1);
+            $selectedChoice = DB::table('aptitude_choices')
+                ->where('id', $answerId)
+                ->where('question_id', $questionId)
+                ->first();
 
-        // Return the result
+            if ($selectedChoice) {
+                AptitudeResults::create([
+                    'student_id' => $user->id,
+                    'question_id' => $questionId,
+                    'answer_id' => $answerId,
+                    'is_correct' => $selectedChoice->is_correct == 1,
+                    'question_text' => $question['question'], // Optional
+                    'answer_text' => $selectedChoice->choices, // Optional
+                ]);
+            }
+        }
+
+        // Clear session data after successful submission
+        session()->forget(['answers', 'aptitude_questions']);
+
         return response()->json([
             'success' => true,
-            'is_correct' => $isCorrect, // Inform the user if their answer was correct
-            'correct_answer' => $isCorrect ? null : $this->getCorrectAnswer($request->question_id) // If incorrect, show the correct answer
+            'message' => 'Test submitted successfully'
         ]);
-
     } catch (\Exception $e) {
         return response()->json([
             'success' => false,
-            'message' => 'Error saving answer: ' . $e->getMessage()
+            'message' => 'Error saving answers: ' . $e->getMessage()
         ], 500);
     }
 }
 
-// Helper method to get the correct answer for a question
-private function getCorrectAnswer($questionId)
+	public function aptitudeResults(Request $request)
 {
-    $correctChoice = DB::table('aptitude_choices')
-        ->where('question_id', $questionId)
-        ->where('is_correct', 1)
-        ->first();
+    $gen_user = Auth::user()->person_id;
+    $user = Student::find($gen_user);
 
-    return $correctChoice ? $correctChoice->choices : 'No correct answer found.';
+    // Fetch the user's test results
+    $results = AptitudeResults::where('student_id', $user->id)
+        ->join('aptitude_question', 'aptitude_results.question_id', '=', 'aptitude_question.id')
+        ->join('aptitude_choices as user_answer', 'aptitude_results.answer_id', '=', 'user_answer.id')
+        ->leftJoin('aptitude_choices as correct_answer', function ($join) {
+            $join->on('aptitude_results.question_id', '=', 'correct_answer.question_id')
+                 ->where('correct_answer.is_correct', '=', 1); // Added the operator '='
+        })
+        ->select(
+            'aptitude_question.question',
+            'user_answer.choices as user_answer',
+            'correct_answer.choices as correct_answer',
+            'aptitude_results.is_correct'
+        )
+        ->orderBy('aptitude_results.created_at', 'asc')
+        ->get();
+
+    if ($results->isEmpty()) {
+        return redirect()->route('aptitude.test')->with('error', 'You have not completed the test yet.');
+    }
+
+    $totalQuestions = $results->count();
+    $correctAnswers = $results->where('is_correct', 1)->count();
+    $incorrectAnswers = $totalQuestions - $correctAnswers;
+    $scorePercentage = $totalQuestions > 0 ? ($correctAnswers / $totalQuestions) * 100 : 0;
+
+    return view('student.aptitude_test_results', [
+        'results' => $results,
+        'totalQuestions' => $totalQuestions,
+        'correctAnswers' => $correctAnswers,
+        'incorrectAnswers' => $incorrectAnswers,
+        'scorePercentage' => $scorePercentage,
+    ]);
 }
 
 	public function chatBot(Request $request)

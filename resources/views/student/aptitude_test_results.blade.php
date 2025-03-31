@@ -121,51 +121,30 @@
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-    
-        .intro-card {
-            max-width: 600px;
-            margin: 50px auto;
+        .form-check-input {
+            margin-right: 10px;
         }
-        .notification {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        .btn-start {
-            background-color: #007bff;
-            color: white;
+        .btn-nav {
             padding: 10px 20px;
-            font-size: 16px;
         }
-        .btn-results {
-    background-color: #28a745;
-    color: white;
-    padding: 8px 18px; /* Reduced padding */
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 8px;
-    border: none;
-    text-transform: uppercase;
-    transition: all 0.3s ease-in-out;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.btn-results:hover {
-    background-color: #218838;
-    transform: scale(1.05);
-    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
-}
-
-.btn-results i {
-    font-size: 18px;
-}
-
-
+        .btn-prev {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-next {
+            background-color: #28a745;
+            color: white;
+        }
+        .question-nav .btn {
+        width: 40px;
+        text-align: center;
+    }
+    .form-check:hover {
+        background-color: #f8f9fa;
+    }
+    .btn-nav {
+        min-width: 100px;
+    }
 </style>
 
 <div class="container-fluid">
@@ -286,46 +265,66 @@
                 }
 		</script>
 
-		<input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
-        <div class="card mb-3">
-            <div class="card-body">
-                <div class="row flex-between-center">
-                    <div class="col-md">
-                        <h5 class="mb-2 mb-md-0">Aptitude Test</h5>
+
+<div class="container mt-5">
+    <div class="card result-card">
+        <div class="card-body">
+            <h3 class="mb-4">Aptitude Test Results</h3>
+
+            <!-- Score Summary -->
+            <div class="score-summary">
+                <h5>Your Score: {{ number_format($scorePercentage, 2) }}%</h5>
+                <p>Total Questions: {{ $totalQuestions }}</p>
+                <p>Correct Answers: {{ $correctAnswers }}</p>
+                <p>Incorrect Answers: {{ $incorrectAnswers }}</p>
+                <div class="progress">
+                    <div class="progress-bar bg-success" role="progressbar" 
+                         style="width: {{ $scorePercentage }}%" 
+                         aria-valuenow="{{ $scorePercentage }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                        {{ number_format($scorePercentage, 2) }}%
                     </div>
                 </div>
             </div>
+
+            <!-- Detailed Results -->
+            <h5>Detailed Results</h5>
+            @if ($results->isEmpty())
+                <p>No results found. Please take the test first.</p>
+            @else
+                @foreach ($results as $index => $result)
+                    <div class="question-item">
+                        <p><strong>{{ $index + 1 }}. {{ $result->question }}</strong></p>
+                        <p>Your Answer: {{ $result->user_answer }} 
+                            <span class="{{ $result->is_correct ? 'correct' : 'incorrect' }}">
+                                ({{ $result->is_correct ? 'Correct' : 'Incorrect' }})
+                            </span>
+                        </p>
+                        @if (!$result->is_correct)
+                            <p>Correct Answer: {{ $result->correct_answer }}</p>
+                        @endif
+                    </div>
+                @endforeach
+            @endif
+
+            <!-- Back to Test Button -->
+            {{-- <div class="mt-4">
+                <a href="{{ route('aptitude.test') }}" class="btn btn-primary">Take Another Test</a>
+            </div> --}}
         </div>
- 
-        <div class="container">
-            <div class="card intro-card">
-                <div class="card-body">
-                    <h3 class="mb-4">Aptitude Test Introduction</h3>
-    
-                    @if ($hasResults)
-                        <div class="notification">
-                            <strong>Your aptitude test is done!</strong> You have already completed the test. You can view your results.
-                            <div class="mt-3">
-                                <a href="{{ route('aptitude.results') }}" class="btn btn-results">View Results</a>
-                            </div>
-                        </div>
-                    @else
-                        <p>Welcome to the Aptitude Test! This test consists of {{ $total_questions }} questions designed to assess your skills.</p>
-                        <p>Click the button below to start the test.</p>
-                        <a href="{{ route('aptitude.test') }}?start=true" class="btn btn-start">Start Test</a>
-                    @endif
-                </div>
-            </div>
-        </div>
+    </div>
+</div>
 
 
 
-
+@section('scripts')
 <script>
  
-
+ $(document).ready(function() {
+    
+});
 </script>
-
 @stop
 
 
