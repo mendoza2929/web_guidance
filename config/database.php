@@ -1,5 +1,5 @@
 <?php
-$DATABASE_URL=parse_url('DATABASE_URL');
+
 return [
 
 	/*
@@ -26,7 +26,7 @@ return [
 	|
 	*/
 
-	'default' => 'pgsql',
+	'default' => 'mysql',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -54,11 +54,10 @@ return [
 
 		'mysql' => [
 			'driver'    => 'mysql',
-			'host'      => $DATABASE_URL['host'],
-			'port'      => $DATABASE_URL['port'],
-			'database'  => ltrim($DATABASE_URL['path'], '/'),
-			'username'  => $DATABASE_URL['user'],
-			'password'  => $DATABASE_URL['pass'],
+			'host'      => 'localhost',
+			'database'  => 'guidance',
+			'username'  => 'root',
+			'password'  =>  '',
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
 			'prefix'    => '',
