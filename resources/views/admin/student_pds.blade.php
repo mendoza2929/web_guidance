@@ -230,10 +230,14 @@
                     </div>
         
                     <!-- Right Section: Upload Box -->
-                    <div class="upload-box" id="uploadBox">
-                        {{-- 2x2 ID Picture
-                        <input type="file" id="imageInput" accept="image/*" style="display: none;"> --}}
-                        <img id="imagePreview" src="{{ asset($person->img) }}" alt="Image Preview" width="150" height="150">
+                    <div class="upload-box" id="uploadBox" style="border: 2px dashed #ccc; padding: 10px; text-align: center; cursor: pointer;">
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}" />
+                        <input type="hidden" name="person_id" value="{{ $person_id ? : '' }}" id="person_id" />
+                        <label style="font-weight: bold;">2X2 ID PICTURE</label><br>
+                        <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                        <div class="preview-container" style="width: 100px; height: 100px; margin: 10px auto; border: 1px solid #ddd;">
+                            <img id="imagePreview" src="{{ isset($person->img) ? asset($person->img) : '' }}" alt="Image Preview" style="width: 100%; height: 100%; object-fit: cover; display: {{ isset($person->img) ? 'block' : 'none' }};">
+                        </div>
                     </div>
                     
                 </div>
@@ -686,6 +690,133 @@ $(document).ready(function() {
                 });
             });    
        });
+
+
+       document.addEventListener('DOMContentLoaded', function() {
+    var uploadBox = document.getElementById('uploadBox');
+    var imageInput = document.getElementById('imageInput');
+    var imagePreview = document.getElementById('imagePreview');
+    var personIdInput = document.getElementById('person_id');
+
+    // Click to upload
+    uploadBox.addEventListener('click', function() {
+        imageInput.click();
+    });
+
+    // Function to upload file
+    function uploadFile(file, personId) {
+        var formData = new FormData();
+        formData.append('file', file);
+        formData.append('person_id', personId);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '{{ url("upload_image_student") }}', true);
+        xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                var data = JSON.parse(xhr.responseText);
+                if (data.success) {
+                    // Update person_id if a new record was created
+                    if (data.person_id) {
+                        personIdInput.value = data.person_id;
+                    }
+                    // Display success message
+                    Swal.fire('Success', 'Image uploaded and saved successfully', 'success');
+                    // Set the preview to the uploaded image path
+                    imagePreview.src = '/' + data.image_path;
+                    imagePreview.style.display = 'block';
+                    imageInput.value = ''; // Clear input for next upload
+                    location.reload();
+                } else {
+                    Swal.fire('Error', data.message || 'Upload failed', 'error');
+                }
+            } else {
+                Swal.fire('Error', 'Upload failed: Server error', 'error');
+            }
+        };
+
+        xhr.onerror = function() {
+            Swal.fire('Error', 'Upload failed: Network error', 'error');
+        };
+
+        xhr.send(formData);
+    }
+
+    // Handle file selection and auto-upload
+    imageInput.addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        if (file) {
+            // Validate file type
+            var allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+            if (!allowedTypes.includes(file.type)) {
+                Swal.fire('Error', 'Please upload only JPG or PNG images.', 'error');
+                this.value = '';
+                return;
+            }
+
+            // Validate file size (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                Swal.fire('Error', 'Please upload an image smaller than 2MB.', 'error');
+                this.value = '';
+                return;
+            }
+
+            // Preview image before upload
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+
+                // Resize image to 2x2 inches (192x192 pixels at 96 DPI)
+                resizeImage(e.target.result, 192, 192, function(resizedDataUrl) {
+                    imagePreview.src = resizedDataUrl;
+
+                    // Convert resized image back to file and upload
+                    var blobBin = atob(resizedDataUrl.split(',')[1]);
+                    var array = [];
+                    for (var i = 0; i < blobBin.length; i++) {
+                        array.push(blobBin.charCodeAt(i));
+                    }
+                    var resizedFile = new File([new Uint8Array(array)], file.name, { type: file.type });
+                    uploadFile(resizedFile, personIdInput.value);
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Drag and drop
+    uploadBox.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadBox.style.borderColor = '#000';
+    });
+
+    uploadBox.addEventListener('dragleave', function() {
+        uploadBox.style.borderColor = '#ccc';
+    });
+
+    uploadBox.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadBox.style.borderColor = '#ccc';
+        imageInput.files = e.dataTransfer.files;
+        imageInput.dispatchEvent(new Event('change')); // Trigger the change event
+    });
+
+    // Image resize function
+    function resizeImage(dataUrl, width, height, callback) {
+        var img = new Image();
+        img.onload = function() {
+            var canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            callback(canvas.toDataURL('image/jpeg', 0.9));
+        };
+        img.src = dataUrl;
+    }
+});
 
 </script>
 

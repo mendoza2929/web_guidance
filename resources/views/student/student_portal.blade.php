@@ -168,7 +168,7 @@
 			<ul class="navbar-nav navbar-nav-icons ms-auto flex-row align-items-center">
 				<li class="nav-item">
                     @if (Auth::check())
-                        <p class="dropdown-item">Hi Admin, {{ Auth::user()->name }}</p>
+                        <p class="dropdown-item">Hi, {{ Auth::user()->name }}</p>
                     @endif
 					<div class="theme-control-toggle fa-icon-wait px-2"><input
 							class="form-check-input ms-0 theme-control-toggle-input" id="themeControlToggle"

@@ -43,8 +43,12 @@ class StudentController extends Controller {
 
 		$user = User::find($gen_user);
 
+
+		$person_details = Person::where('id',$user->person_id)->first();
+		// dd($person_details);
+
 		if($user->is_new == 1){
-			return view('student.index',compact('religion_list','citizenship_list','gender_list','civil_status_list'));
+			return view('student.index',compact('religion_list','citizenship_list','gender_list','civil_status_list','person_details'));
 		}else{
 			return view('student.student_portal');
 		}
@@ -54,26 +58,117 @@ class StudentController extends Controller {
 
 		// return view('student.index',compact('religion_list','citizenship_list','gender_list','civil_status_list'));
 	}
-	public function aptitudeTest(Request $request)
+// 	public function aptitudeTest(Request $request)
+// {
+//     $gen_user = Auth::user()->person_id;
+//     $user = Student::find($gen_user);
+
+//     // Check if the student has already completed the test
+//     $hasResults = AptitudeResults::where('student_id', $user->id)->exists();
+
+//     $aptitude_questions = AptitudeQuestion::join('classification', 'aptitude_question.classification_id', '=', 'classification.id')
+//         ->leftJoin('classification_level', 'aptitude_question.classification_level_id', '=', 'classification_level.id')
+//         ->join('aptitude_choices', 'aptitude_question.id', '=', 'aptitude_choices.question_id')
+//         ->where('aptitude_question.classification_id', $user->classification_id)
+//         ->select(
+//             'aptitude_question.*',
+//             'aptitude_choices.id as choice_id',
+//             'aptitude_choices.choices as choices',
+//             'aptitude_choices.is_correct'
+//         )
+//         ->orderByRaw('RAND()')
+//         ->get();
+	
+
+//     $questions = [];
+//     foreach ($aptitude_questions as $item) {
+//         $question_id = $item->id;
+//         if (!isset($questions[$question_id])) {
+//             $questions[$question_id] = [
+//                 'id' => $item->id,
+//                 'question' => $item->question,
+//                 'choices' => [],
+//             ];
+//         }
+//         $questions[$question_id]['choices'][] = [
+//             'id' => $item->choice_id,
+//             'choice' => $item->choices,
+//             'is_correct' => $item->is_correct,
+//         ];
+//     }
+//     $questions = array_values($questions);
+
+//     // Store questions in session to maintain order
+//     if (!session()->has('aptitude_questions')) {
+//         session(['aptitude_questions' => $questions]);
+//     } else {
+//         $questions = session('aptitude_questions');
+//     }
+
+//     $current_question_index = (int) $request->query('question', 0);
+//     $test_started = $request->query('start', false);
+
+//     if (!$test_started) {
+//         return view('student.aptitude_test_intro', [
+//             'total_questions' => count($questions),
+//             'hasResults' => $hasResults, // Pass the flag to the intro view
+//         ]);
+//     }
+
+//     if ($current_question_index < 0 || $current_question_index >= count($questions)) {
+//         $current_question_index = 0;
+//     }
+
+//     return view('student.aptitude_test', [
+//         'questions' => $questions,
+//         'current_question_index' => $current_question_index,
+//         'total_questions' => count($questions),
+//         'hasResults' => $hasResults, // Pass the flag to the test view
+//     ]);
+// }
+
+public function aptitudeTest(Request $request)
 {
     $gen_user = Auth::user()->person_id;
     $user = Student::find($gen_user);
+    $classification_id = $user->classification_id;
+    $classification_level_id = $user->classification_level_id;
 
-    // Check if the student has already completed the test
     $hasResults = AptitudeResults::where('student_id', $user->id)->exists();
 
-    $aptitude_questions = AptitudeQuestion::join('classification', 'aptitude_question.classification_id', '=', 'classification.id')
+    // Build the query for aptitude questions
+    $query = AptitudeQuestion::join('classification', 'aptitude_question.classification_id', '=', 'classification.id')
         ->leftJoin('classification_level', 'aptitude_question.classification_level_id', '=', 'classification_level.id')
         ->join('aptitude_choices', 'aptitude_question.id', '=', 'aptitude_choices.question_id')
-        ->where('aptitude_question.classification_id', $user->classification_id)
-        ->select(
-            'aptitude_question.*',
-            'aptitude_choices.id as choice_id',
-            'aptitude_choices.choices as choices',
-            'aptitude_choices.is_correct'
-        )
-        ->orderByRaw('RAND()')
-        ->get();
+        ->where('aptitude_question.classification_id', $classification_id);
+
+    // Apply classification_level_id filter only for specific classification_ids (e.g., 1 and 2)
+    if (in_array($classification_id, [1, 2]) && !is_null($classification_level_id)) {
+        $query->where('aptitude_question.classification_level_id', $classification_level_id);
+    }
+
+    // Execute the query
+    $aptitude_questions = $query->select(
+        'aptitude_question.*',
+        'aptitude_choices.id as choice_id',
+        'aptitude_choices.choices as choices',
+        'aptitude_choices.is_correct'
+    )
+    ->orderByRaw('RAND()')
+    ->get();
+
+	// dd($aptitude_questions);
+
+    // Check if there are no questions for the classification_id (and classification_level_id if applicable)
+    if ($aptitude_questions->isEmpty()) {
+        return view('student.aptitude_test', [
+            'questions' => [],
+            'current_question_index' => 0,
+            'total_questions' => 0,
+            'hasResults' => $hasResults,
+            'no_questions' => true // Flag to indicate no questions
+        ]);
+    }
 
     $questions = [];
     foreach ($aptitude_questions as $item) {
@@ -106,7 +201,7 @@ class StudentController extends Controller {
     if (!$test_started) {
         return view('student.aptitude_test_intro', [
             'total_questions' => count($questions),
-            'hasResults' => $hasResults, // Pass the flag to the intro view
+            'hasResults' => $hasResults,
         ]);
     }
 
@@ -118,7 +213,8 @@ class StudentController extends Controller {
         'questions' => $questions,
         'current_question_index' => $current_question_index,
         'total_questions' => count($questions),
-        'hasResults' => $hasResults, // Pass the flag to the test view
+        'hasResults' => $hasResults,
+        'no_questions' => false // Flag to indicate questions exist
     ]);
 }
 
@@ -201,10 +297,53 @@ class StudentController extends Controller {
     }
 }
 
-	public function aptitudeResults(Request $request)
+// 	public function aptitudeResults(Request $request)
+// {
+//     $gen_user = Auth::user()->person_id;
+//     $user = Student::find($gen_user);
+// 	$classification_id = $user->classification_id;
+//     $classification_level_id = $user->classification_level_id;
+//     // Fetch the user's test results
+//     $results = AptitudeResults::where('student_id', $user->id)
+//         ->join('aptitude_question', 'aptitude_results.question_id', '=', 'aptitude_question.id')
+//         ->join('aptitude_choices as user_answer', 'aptitude_results.answer_id', '=', 'user_answer.id')
+//         ->leftJoin('aptitude_choices as correct_answer', function ($join) {
+//             $join->on('aptitude_results.question_id', '=', 'correct_answer.question_id')
+//                  ->where('correct_answer.is_correct', '=', 1); // Added the operator '='
+//         })
+//         ->select(
+//             'aptitude_question.question',
+//             'user_answer.choices as user_answer',
+//             'correct_answer.choices as correct_answer',
+//             'aptitude_results.is_correct'
+//         )
+//         ->orderBy('aptitude_results.created_at', 'asc')
+//         ->get();
+
+//     if ($results->isEmpty()) {
+//         return redirect()->route('aptitude.test')->with('error', 'You have not completed the test yet.');
+//     }
+
+//     $totalQuestions = $results->count();
+//     $correctAnswers = $results->where('is_correct', 1)->count();
+//     $incorrectAnswers = $totalQuestions - $correctAnswers;
+//     $scorePercentage = $totalQuestions > 0 ? ($correctAnswers / $totalQuestions) * 100 : 0;
+
+//     return view('student.aptitude_test_results', [
+//         'results' => $results,
+//         'totalQuestions' => $totalQuestions,
+//         'correctAnswers' => $correctAnswers,
+//         'incorrectAnswers' => $incorrectAnswers,
+//         'scorePercentage' => $scorePercentage,
+//     ]);
+// }
+
+public function aptitudeResults(Request $request)
 {
     $gen_user = Auth::user()->person_id;
     $user = Student::find($gen_user);
+    $classification_id = $user->classification_id;
+    $classification_level_id = $user->classification_level_id;
 
     // Fetch the user's test results
     $results = AptitudeResults::where('student_id', $user->id)
@@ -212,7 +351,7 @@ class StudentController extends Controller {
         ->join('aptitude_choices as user_answer', 'aptitude_results.answer_id', '=', 'user_answer.id')
         ->leftJoin('aptitude_choices as correct_answer', function ($join) {
             $join->on('aptitude_results.question_id', '=', 'correct_answer.question_id')
-                 ->where('correct_answer.is_correct', '=', 1); // Added the operator '='
+                 ->where('correct_answer.is_correct', '=', 1);
         })
         ->select(
             'aptitude_question.question',
@@ -232,13 +371,102 @@ class StudentController extends Controller {
     $incorrectAnswers = $totalQuestions - $correctAnswers;
     $scorePercentage = $totalQuestions > 0 ? ($correctAnswers / $totalQuestions) * 100 : 0;
 
+    // Determine feedback based on classification_id and classification_level_id
+    $feedback = $this->getFeedback($scorePercentage, $classification_id, $classification_level_id);
+
     return view('student.aptitude_test_results', [
         'results' => $results,
         'totalQuestions' => $totalQuestions,
         'correctAnswers' => $correctAnswers,
         'incorrectAnswers' => $incorrectAnswers,
         'scorePercentage' => $scorePercentage,
+        'feedback' => $feedback,
     ]);
+}
+
+/**
+ * Helper method to determine feedback based on score, classification_id, and classification_level_id
+ */
+private function getFeedback($scorePercentage, $classification_id, $classification_level_id)
+{
+    // Classification_id = 1
+    if ($classification_id == 1) {
+        if (in_array($classification_level_id, [1, 2, 3])) {
+            if ($scorePercentage >= 90) {
+                return "Excellent; strong foundational grasp";
+            } elseif ($scorePercentage >= 70) {
+                return "Good; growing core skills";
+            } elseif ($scorePercentage >= 50) {
+                return "Needs help; review basic understanding";
+            } else {
+                return "Struggling; intensive support needed";
+            }
+        } elseif (in_array($classification_level_id, [4, 5, 6])) {
+            if ($scorePercentage >= 90) {
+                return "Advanced; ready for higher challenges";
+            } elseif ($scorePercentage >= 70) {
+                return "On track; age-appropriate skills";
+            } elseif ($scorePercentage >= 50) {
+                return "Needs support; improve basic concepts";
+            } else {
+                return "Below level; focused help needed";
+            }
+        }
+    }
+
+    // Classification_id = 2
+    if ($classification_id == 2) {
+        if (in_array($classification_level_id, [7, 8])) {
+            if ($scorePercentage >= 90) {
+                return "Excellent; shows high aptitude";
+            } elseif ($scorePercentage >= 70) {
+                return "Good; stable performance";
+            } elseif ($scorePercentage >= 50) {
+                return "Average; needs reinforcement in skills";
+            } else {
+                return "Struggling; foundational support required";
+            }
+        } elseif (in_array($classification_level_id, [9, 10])) {
+            if ($scorePercentage >= 90) {
+                return "Strong; well-prepared for upper high school";
+            } elseif ($scorePercentage >= 70) {
+                return "Solid; good understanding of concepts";
+            } elseif ($scorePercentage >= 50) {
+                return "Fair; needs more practice in problem solving";
+            } else {
+                return "Learning gaps present; tutoring recommended";
+            }
+        }
+    }
+
+    // Classification_id = 11, 12
+    if (in_array($classification_id, [11, 12])) {
+        if ($scorePercentage >= 90) {
+            return "Advanced; handles complex tasks effectively";
+        } elseif ($scorePercentage >= 70) {
+            return "Proficient; prepared for academic progression";
+        } elseif ($scorePercentage >= 50) {
+            return "Developing; requires academic support";
+        } else {
+            return "At risk; needs intervention and review";
+        }
+    }
+
+    // Classification_id = 13, 14, 15
+    if (in_array($classification_id, [13, 14, 15])) {
+        if ($scorePercentage >= 90) {
+            return "Excellent aptitude; ready for higher academics or employment";
+        } elseif ($scorePercentage >= 70) {
+            return "Above average; minor improvements needed";
+        } elseif ($scorePercentage >= 50) {
+            return "Average; needs reinforcement in math or logic";
+        } else {
+            return "Weak aptitude; core concepts need review";
+        }
+    }
+
+    // Default feedback if no specific match
+    return "Score: " . number_format($scorePercentage, 2) . "% - Please consult your instructor for feedback.";
 }
 
 	public function chatBot(Request $request)
@@ -392,6 +620,8 @@ class StudentController extends Controller {
 		$plan_after_hs = \Request::input('plan_after_hs');
 		$award = \Request::input('award');
 		$emergency_contact = \Request::input('emergency_contact');
+		$password = \Request::input('password');
+		$confirm_password = \Request::input('confirm_password');
 
 
 		
@@ -479,6 +709,7 @@ class StudentController extends Controller {
 		if ($user) {
 			$user->update([
 				'is_new' => 0,
+				'password' => \Illuminate\Support\Facades\Hash::make($password)
 			]);
 		} 
 		

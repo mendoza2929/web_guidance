@@ -277,7 +277,7 @@
                 <p>Total Questions: {{ $totalQuestions }}</p>
                 <p>Correct Answers: {{ $correctAnswers }}</p>
                 <p>Incorrect Answers: {{ $incorrectAnswers }}</p>
-                <div class="progress">
+                <div class="progress mb-3">
                     <div class="progress-bar bg-success" role="progressbar" 
                          style="width: {{ $scorePercentage }}%" 
                          aria-valuenow="{{ $scorePercentage }}" 
@@ -285,6 +285,10 @@
                          aria-valuemax="100">
                         {{ number_format($scorePercentage, 2) }}%
                     </div>
+                </div>
+                <!-- Feedback Message -->
+                <div class="alert alert-info" role="alert">
+                    <strong>Feedback:</strong> {{ $feedback }}
                 </div>
             </div>
 
@@ -315,7 +319,6 @@
         </div>
     </div>
 </div>
-
 
 
 @section('scripts')

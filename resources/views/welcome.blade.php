@@ -241,10 +241,10 @@
             <p>A WEB-BASED SYSTEM FOR GUIDANCE OFFICE ACCUMULATIVE RECORDS AND AUTOMATED PRINT MANAGEMENT AT ANDRES SORIANO COLLEGES OF BISLIG, INCs</p>
             <div class="d-flex">
               <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
-              <div class="chat-icon" id="chat-icon">💬</div>
+              {{-- <div class="chat-icon" id="chat-icon">💬</div> --}}
 
               <!-- Chat Popup -->
-              <div class="chat-container" id="chat-container">
+              {{-- <div class="chat-container" id="chat-container">
                 <div class="chat-header">
                     Chatbot
                     <span class="close-btn" id="close-btn">&times;</span>
@@ -276,7 +276,7 @@
                         <button type="submit" id="send-btn">Send</button>
                     </div>
                 </form>
-            </div>
+            </div> --}}
             
             </div>
           </div>

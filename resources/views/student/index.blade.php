@@ -274,17 +274,17 @@
                                         <!-- First Name -->
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label" for="firstName">First Name</label>
-                                            <input type="text" id="firstName" class="form-control shadow-sm rounded" name="first_name" id="first_name" />
+                                            <input type="text" id="firstName" class="form-control shadow-sm rounded" name="first_name" id="first_name" value="{{ $person_details->first_name }}" />
                                         </div>
                                         <!-- Last Name -->
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label" for="lastName">Last Name</label>
-                                            <input type="text" id="lastName" class="form-control shadow-sm rounded" name="last_name" id="last_name" />
+                                            <input type="text" id="lastName" class="form-control shadow-sm rounded" name="last_name" id="last_name" value="{{ $person_details->last_name }}" />
                                         </div>
                                         <!-- Middle Name -->
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label" for="middleName">Middle Name</label>
-                                            <input type="text" id="middleName" class="form-control shadow-sm rounded" name="middle_name" id="middle_name" />
+                                            <input type="text" id="middleName" class="form-control shadow-sm rounded" name="middle_name" id="middle_name" {{ $person_details->middle_name }} />
                                         </div>
                                         <!-- Date -->
                                         <div class="col-md-3 mb-3">
@@ -554,55 +554,102 @@
 
 
                             </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <table class="table table-bordered">
+                            <div class="card mb-4 shadow-sm">
+                                <div class="card-header bg-primary text-white">
+                                    <h2 class="card-title mb-0">OTHER INFORMATION</h2>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <table class="table table-bordered">
+                                            <tbody>
+                                                <tr>
+                                                    <td id="easiestSubjects">
+                                                        <input type="text" class="form-control shadow-sm rounded" placeholder="Enter easiest subjects" name="easiest" id="easiest">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td id="mostDifficultSubjects">
+                                                        <input type="text" class="form-control shadow-sm rounded" placeholder="Enter most difficult subjects" name="most_diff_sub" id="most_diff_sub">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td itemid="lowestGrades">
+                                                        <input type="text" class="form-control shadow-sm rounded" placeholder="Enter subjects with lowest grade" name="subj_lowest" id="subj_lowest">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td id="planAfterHighSchool">
+                                                        <input type="text" class="form-control shadow-sm rounded" placeholder="Enter plan after high school" name="plan_after_hs" id="plan_after_hs">
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <table class="table table-bordered">
+                                            <tbody>
+                                                <tr>
+                                                    <td id="highestGrades">
+                                                        <input type="text" class="form-control shadow-sm rounded" placeholder="Enter subjects with highest grade" name="subj_highest_grade" id="subj_highest_grade">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td id="awards">
+                                                        <input type="text" class="form-control shadow-sm rounded" placeholder="Enter awards & honors" name="award" id="award">
+                                                    </td>
+                                                </tr>
+                                                
+                                                <tr>
+                                                    <td id="emergencyContact">
+                                                        <input type="text" class="form-control shadow-sm rounded" placeholder="Enter emergency contact" name="emergency_contact" id="emergency_contact">
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <div class="card mb-4 shadow-sm">
+                                <div class="card-header bg-primary text-white">
+                                    <h2 class="card-title mb-0">CHANGE PASSWORD</h2>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-bordered"> 
                                         <tbody>
                                             <tr>
-                                                <td id="easiestSubjects">
-                                                    <input type="text" class="form-control shadow-sm rounded" placeholder="Enter easiest subjects" name="easiest" id="easiest">
+                                                <td>Password</td>
+                                                <td>
+                                                    <input 
+                                                        type="password" 
+                                                        class="form-control shadow-sm rounded" 
+                                                        placeholder="Password" 
+                                                        id="password" 
+                                                        name="password" 
+                                                        onkeyup="checkPasswordMatch()"
+                                                    >
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td id="mostDifficultSubjects">
-                                                    <input type="text" class="form-control shadow-sm rounded" placeholder="Enter most difficult subjects" name="most_diff_sub" id="most_diff_sub">
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td itemid="lowestGrades">
-                                                    <input type="text" class="form-control shadow-sm rounded" placeholder="Enter subjects with lowest grade" name="subj_lowest" id="subj_lowest">
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td id="planAfterHighSchool">
-                                                    <input type="text" class="form-control shadow-sm rounded" placeholder="Enter plan after high school" name="plan_after_hs" id="plan_after_hs">
+                                                <td>Confirm Password</td>
+                                                <td>
+                                                    <input 
+                                                        type="password" 
+                                                        class="form-control shadow-sm rounded" 
+                                                        placeholder="Confirm Password" 
+                                                        id="confirm_password" 
+                                                        name="confirm_password" 
+                                                        onkeyup="checkPasswordMatch()"
+                                                    >
+                                                    <span id="message" style="color: red;"></span>
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="col-md-6">
-                                    <table class="table table-bordered">
-                                        <tbody>
-                                            <tr>
-                                                <td id="highestGrades">
-                                                    <input type="text" class="form-control shadow-sm rounded" placeholder="Enter subjects with highest grade" name="subj_highest_grade" id="subj_highest_grade">
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td id="awards">
-                                                    <input type="text" class="form-control shadow-sm rounded" placeholder="Enter awards & honors" name="award" id="award">
-                                                </td>
-                                            </tr>
-                                            
-                                            <tr>
-                                                <td id="emergencyContact">
-                                                    <input type="text" class="form-control shadow-sm rounded" placeholder="Enter emergency contact" name="emergency_contact" id="emergency_contact">
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+
+
                             </div>
                         </div>
                     </div>
@@ -633,6 +680,44 @@
 
     @section('scripts')
     <script>
+
+function checkPasswordMatch() {
+    var password = document.getElementById("password").value;
+    var confirmPassword = document.getElementById("confirm_password").value;
+    var message = document.getElementById("message");
+
+    if (password === "" && confirmPassword === "") {
+        message.innerHTML = "";
+    } else if (password === confirmPassword) {
+        message.style.color = "green";
+        message.innerHTML = "Passwords match!";
+    } else {
+        message.style.color = "red";
+        message.innerHTML = "Passwords do not match!";
+    }
+}
+
+function validateForm() {
+    var password = document.getElementById("password").value;
+    var confirmPassword = document.getElementById("confirm_password").value;
+
+    // Basic password validation rules
+    if (password.length < 8) {
+        alert("Password must be at least 8 characters long");
+        return false;
+    }
+
+    if (password !== confirmPassword) {
+        alert("Passwords do not match");
+        return false;
+    }
+
+    // If all validations pass
+    alert("Form submitted successfully!");
+    return true;
+}
+
+
     document.addEventListener("DOMContentLoaded", function () {
         
         let today = new Date().toISOString().split('T')[0];

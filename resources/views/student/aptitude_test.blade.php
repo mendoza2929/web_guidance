@@ -280,68 +280,73 @@
             <div class="card mb-3">
                 <form id="aptitudeForm">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                    <input type="hidden" name="question_id" value="{{ $questions[$current_question_index]['id'] }}">
-                    <input type="hidden" name="current_question_index" value="{{ $current_question_index }}">
+                    @if (!empty($questions) && isset($questions[$current_question_index]))
+                        <input type="hidden" name="question_id" value="{{ $questions[$current_question_index]['id'] }}">
+                        <input type="hidden" name="current_question_index" value="{{ $current_question_index }}">
+                    @endif
                     <div class="card-body">
                         <h5 class="mb-2">Aptitude Test</h5>
-                        <!-- Progress Bar -->
-                        <div class="progress mb-3">
-                            <div class="progress-bar bg-primary" role="progressbar" 
-                                 style="width: {{ (($current_question_index + 1) / $total_questions) * 100 }}%" 
-                                 aria-valuenow="{{ $current_question_index + 1 }}" 
-                                 aria-valuemin="0" 
-                                 aria-valuemax="{{ $total_questions }}">
-                                {{ $current_question_index + 1 }} / {{ $total_questions }} ({{ number_format((($current_question_index + 1) / $total_questions) * 100, 0) }}%)
-                            </div>
-                        </div>
-        
-                        <!-- Question Navigation -->
-                        <div class="question-nav mb-3 d-flex justify-content-center">
-                            @for ($i = 0; $i < $total_questions; $i++)
-                                <a href="{{ route('aptitude.test') }}?start=true&question={{ $i }}" 
-                                   class="btn btn-sm {{ $i == $current_question_index ? 'btn-primary' : 'btn-outline-primary' }} mx-1">
-                                    {{ $i + 1 }}
-                                </a>
-                            @endfor
-                        </div>
-        
-                        @if (isset($questions[$current_question_index]))
-                            <div class="question mt-4">
-                                <p><strong>{{ $current_question_index + 1 }}.</strong> {{ $questions[$current_question_index]['question'] }}</p>
-                                @foreach ($questions[$current_question_index]['choices'] as $index => $choice)
-                                    <div class="form-check mb-2 p-2 rounded {{ session('answers.' . $questions[$current_question_index]['id']) == $choice['id'] ? 'bg-light border border-primary' : '' }}">
-                                        <input class="form-check-input" 
-                                               type="radio" 
-                                               name="answer" 
-                                               id="choice_{{ $choice['id'] }}" 
-                                               value="{{ $choice['id'] }}"
-                                               {{ session('answers.' . $questions[$current_question_index]['id']) == $choice['id'] ? 'checked' : '' }}>
-                                        <label class="form-check-label" for="choice_{{ $choice['id'] }}">
-                                            {{ chr(65 + $index) }}. {{ $choice['choice'] }}
-                                        </label>
-                                    </div>
-                                @endforeach
-                            </div>
-                            <div class="navigation mt-4 d-flex justify-content-between">
-                                @if ($current_question_index > 0)
-                                    <button type="button" class="btn btn-outline-secondary btn-nav" onclick="navigate({{ $current_question_index - 1 }})">Previous</button>
-                                @else
-                                    <span></span>
-                                @endif
-                                @if ($current_question_index < $total_questions - 1)
-                                    <button type="button" class="btn btn-primary btn-nav" onclick="navigate({{ $current_question_index + 1 }})">Next</button>
-                                @else
-                                    <button type="submit" class="btn btn-success btn-nav" id="submit">Submit Test</button>
-                                @endif
-                            </div>
+                        @if ($no_questions ? : false)
+                            <p>No questions available for your level.</p>
                         @else
-                            <p>No questions available.</p>
+                            <!-- Progress Bar -->
+                            <div class="progress mb-3">
+                                <div class="progress-bar bg-primary" role="progressbar" 
+                                     style="width: {{ (($current_question_index + 1) / $total_questions) * 100 }}%" 
+                                     aria-valuenow="{{ $current_question_index + 1 }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="{{ $total_questions }}">
+                                    {{ $current_question_index + 1 }} / {{ $total_questions }} ({{ number_format((($current_question_index + 1) / $total_questions) * 100, 0) }}%)
+                                </div>
+                            </div>
+        
+                            <!-- Question Navigation -->
+                            <div class="question-nav mb-3 d-flex justify-content-center">
+                                @for ($i = 0; $i < $total_questions; $i++)
+                                    <a href="{{ route('aptitude.test') }}?start=true&question={{ $i }}" 
+                                       class="btn btn-sm {{ $i == $current_question_index ? 'btn-primary' : 'btn-outline-primary' }} mx-1">
+                                        {{ $i + 1 }}
+                                    </a>
+                                @endfor
+                            </div>
+        
+                            @if (isset($questions[$current_question_index]))
+                                <div class="question mt-4">
+                                    <p><strong>{{ $current_question_index + 1 }}.</strong> {{ $questions[$current_question_index]['question'] }}</p>
+                                    @foreach ($questions[$current_question_index]['choices'] as $index => $choice)
+                                        <div class="form-check mb-2 p-2 rounded {{ session('answers.' . $questions[$current_question_index]['id']) == $choice['id'] ? 'bg-light border border-primary' : '' }}">
+                                            <input class="form-check-input" 
+                                                   type="radio" 
+                                                   name="answer" 
+                                                   id="choice_{{ $choice['id'] }}" 
+                                                   value="{{ $choice['id'] }}"
+                                                   {{ session('answers.' . $questions[$current_question_index]['id']) == $choice['id'] ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="choice_{{ $choice['id'] }}">
+                                                {{ chr(65 + $index) }}. {{ $choice['choice'] }}
+                                            </label>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <div class="navigation mt-4 d-flex justify-content-between">
+                                    @if ($current_question_index > 0)
+                                        <button type="button" class="btn btn-outline-secondary btn-nav" onclick="navigate({{ $current_question_index - 1 }})">Previous</button>
+                                    @else
+                                        <span></span>
+                                    @endif
+                                    @if ($current_question_index < $total_questions - 1)
+                                        <button type="button" class="btn btn-primary btn-nav" onclick="navigate({{ $current_question_index + 1 }})">Next</button>
+                                    @else
+                                        <button type="submit" class="btn btn-success btn-nav" id="submit">Submit Test</button>
+                                    @endif
+                                </div>
+                            @else
+                                <p>No questions available.</p>
+                            @endif
                         @endif
                     </div>
                 </form>
             </div>
         </div>
-
 
 
 @section('scripts')
