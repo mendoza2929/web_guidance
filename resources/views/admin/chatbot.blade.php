@@ -4,21 +4,51 @@
 
 @section('content')
 
-<style>
-  .holiday {
-    background-color: red !important;
-    color: white !important;
-  }
-
-  .container-fluid{
-    background-color: #ffffff;
-  }
-  .navbar{
-    background-color: #ffffff;
-  }
-  .navbar-vertical-content {
-    background-color: #ffffff;
-  }
+<style> .chat-container {
+  max-width: 800px;
+  margin: 0 auto;
+  height: 500px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+  background-color: #f9f9f9;
+}
+.message {
+  margin-bottom: 15px;
+  display: flex;
+}
+.message.student {
+  justify-content: flex-end;
+}
+.message.ai {
+  justify-content: flex-start;
+}
+.message-content {
+  max-width: 70%;
+  padding: 10px 15px;
+  border-radius: 15px;
+  line-height: 1.5;
+}
+.message.student .message-content {
+  background-color: #007bff;
+  color: white;
+  border-bottom-right-radius: 5px;
+}
+.message.ai .message-content {
+  background-color: #e9ecef;
+  color: #333;
+  border-bottom-left-radius: 5px;
+}
+.message-timestamp {
+  font-size: 0.8em;
+  color: #666;
+  margin-top: 5px;
+}
+.card-header {
+  background-color: #007bff;
+  color: white;
+}
 </style>
 
 <div class="container-fluid">
@@ -140,34 +170,34 @@
 		</script>
 
 		<input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
-
-		    <div class="card mb-3">
-            <div class="card-body">
-              <div class="row flex-between-center">
-                <div class="col-md">
-                  <h5 class="mb-2 mb-md-0">GOLink AI CHAT BOT</h5>
-                </div>
-              </div>
-            </div>
+    <div class="container mt-4">
+      <div class="card">
+          <div class="card-header">
+              <h5 class="mb-0" style="color: white">View the conversation history with GOLink AI.</h5>
           </div>
-    
-          <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">GOLink AI Chat Bot Summary</h5>
-                <table id="chatBotTable" class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Student Name</th>
-                            <th>AI Response</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
+          <div class="card-body">
+              <div class="chat-container" id="chatContainer">
+                  @foreach ($conversations as $conversation)
+                      {{-- @if ($conversation['type'] === 'student')
+                          <div class="message student">
+                              <div class="message-content">
+                                  {{ $conversation['message'] }}
+                                  <div class="message-timestamp">{{ $conversation['timestamp'] }}</div>
+                              </div>
+                          </div>
+                      @else --}}
+                          <div class="message ai">
+                              <div class="message-content">
+                                  {{ $conversation['message'] }}
+                                  <div class="message-timestamp">{{ $conversation['timestamp'] }}</div>
+                              </div>
+                          </div>
+                      {{-- @endif --}}
+                  @endforeach
+              </div>
+          </div>
+      </div>
+  </div>
 
 
 
@@ -180,31 +210,10 @@
 
 @section('scripts')
 <script>
- var oTable;
- $(document).ready(function () {
-    var oTable = $("#chatBotTable").DataTable({
-        ajax: {
-            url: "{{ url('admin/chatbot_data') }}",
-            type: "GET",
-            data: function(d) {
-                
-            },
-            dataSrc: "",
-        },
-        columns: [
-            {
-                data: 'name',
-            },
-            {
-                data: 'response',
-            },
-        ]
-    });
-
-
-
-});
-
+ document.addEventListener('DOMContentLoaded', () => {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        });
 
 </script>
 

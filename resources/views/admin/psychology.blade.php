@@ -144,7 +144,7 @@
             <div class="card-body">
               <div class="row flex-between-center">
                 <div class="col-md">
-                  <h5 class="mb-2 mb-md-0">Psychology Test</h5>
+                  <h5 class="mb-2 mb-md-0">Aptituted Data</h5>
                 </div>
               </div>
             </div>
@@ -173,15 +173,15 @@
 
           <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Psychology Data Sheet</h5>
+                <h5 class="card-title">Aptitude Data Sheet</h5>
                 <table id="studentTable" class="table table-bordered">
                     <thead>
                         <tr>
                             <th>Student Name</th>
                             <th>Department Type</th>
                             <th>Level</th>
-                            <th>Image</th>
-                            <th>Summary</th>
+                            {{-- <th>Image</th>
+                            <th>Summary</th> --}}
                         </tr>
                     </thead>
                     <tbody>
@@ -242,13 +242,13 @@
             },
             {
                 data: 'level',
-            },
-            {
-                data: 'img',
-            }, 
-            {
-                data: 'summary',
-            }, 
+            }
+            // {
+            //     data: 'img',
+            // }, 
+            // {
+            //     data: 'summary',
+            // }, 
         ]
     });
 

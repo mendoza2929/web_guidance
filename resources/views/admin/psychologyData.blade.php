@@ -153,7 +153,7 @@
 
 		<input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
 
-        <div class="container mt-5">
+        {{-- <div class="container mt-5">
             <div class="card mb-3">
                 <div class="card-body">
                     <div class="row flex-between-center">
@@ -207,7 +207,72 @@
                     </div>
                 </div>
             </div>
+        </div> --}}
+
+        <div class="container mt-5">
+            <div class="card result-card">
+                <div class="card-body">
+                    <h3 class="mb-4">Aptitude Test Results</h3>
+        
+                    @if (isset($message))
+                        <!-- Display message if no results -->
+                        <div class="alert alert-warning" role="alert">
+                            {{ $message }}
+                        </div>
+                        {{-- <div class="mt-4">
+                            <a href="{{ route('aptitude.test') }}" class="btn btn-primary">Take the Test</a>
+                        </div> --}}
+                    @else
+                        <!-- Score Summary -->
+                        <div class="score-summary">
+                            <h5>Your Score: {{ number_format($scorePercentage, 2) }}%</h5>
+                            <p>Total Questions: {{ $totalQuestions }}</p>
+                            <p>Correct Answers: {{ $correctAnswers }}</p>
+                            <p>Incorrect Answers: {{ $incorrectAnswers }}</p>
+                            <div class="progress mb-3">
+                                <div class="progress-bar bg-success" role="progressbar" 
+                                     style="width: {{ $scorePercentage }}%" 
+                                     aria-valuenow="{{ $scorePercentage }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                    {{ number_format($scorePercentage, 2) }}%
+                                </div>
+                            </div>
+                            <!-- Feedback Message -->
+                            <div class="alert alert-info" role="alert">
+                                <strong>Feedback:</strong> {{ $feedback }}
+                            </div>
+                        </div>
+        
+                        <!-- Detailed Results -->
+                        <h5>Detailed Results</h5>
+                        @if ($results->isEmpty())
+                            <p>No results found. Please take the test first.</p>
+                        @else
+                            @foreach ($results as $index => $result)
+                                <div class="question-item">
+                                    <p><strong>{{ $index + 1 }}. {{ $result->question }}</strong></p>
+                                    <p>Your Answer: {{ $result->user_answer }} 
+                                        <span class="{{ $result->is_correct ? 'correct' : 'incorrect' }}">
+                                            ({{ $result->is_correct ? 'Correct' : 'Incorrect' }})
+                                        </span>
+                                    </p>
+                                    @if (!$result->is_correct)
+                                        <p>Correct Answer: {{ $result->correct_answer }}</p>
+                                    @endif
+                                </div>
+                            @endforeach
+                        @endif
+        
+                        <!-- Back to Test Button -->
+                        {{-- <div class="mt-4">
+                            <a href="{{ route('aptitude.test') }}" class="btn btn-primary">Take Another Test</a>
+                        </div> --}}
+                    @endif
+                </div>
+            </div>
         </div>
+        
 
         
           

@@ -193,7 +193,29 @@
 
 
 
-        
+        <!-- Selection Modal -->
+<div class="modal fade" id="selectionModal" tabindex="-1" aria-labelledby="selectionModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="selectionModalLabel">Select View</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <div class="d-flex flex-column gap-2">
+                  <button class="btn btn-primary view-option" data-option="pds">Personal Data Sheet</button>
+                  <button class="btn btn-primary view-option" data-option="chatbot">Chatbot</button>
+                  <button class="btn btn-primary view-option" data-option="anecdotal">Anecdotal</button>
+                  <button class="btn btn-primary view-option" data-option="counseling">Counseling</button>
+                  <button class="btn btn-primary view-option" data-option="aptitude">Aptitude Test Result</button>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          </div>
+      </div>
+  </div>
+</div>
           
 		  
 
@@ -261,10 +283,48 @@
     });
 
     oTable.on("click", ".viewDetail", function() {
-        const person_id = $(this).data("person_id");
-        const url = "{{ url('admin/student_profile') }}?person_id=" + person_id;
-        window.open(url);
-    });
+    const person_id = $(this).data("person_id");
+    
+    // Store person_id in a data attribute of the modal for later use
+    $("#selectionModal").data("person_id", person_id);
+    
+    // Show the selection modal
+    $("#selectionModal").modal("show");
+});
+
+$(document).on("click", ".view-option", function() {
+    const option = $(this).data("option");
+    const person_id = $("#selectionModal").data("person_id");
+    
+    let url;
+    switch (option) {
+        case "pds":
+            url = "{{ url('admin/student_profile') }}?person_id=" + person_id;
+            break;
+        case "chatbot":
+            url = "{{ url('admin/chatbot_data') }}?person_id=" + person_id;
+            break;
+        case "anecdotal":
+            url = "{{ url('admin/anecdotal_data') }}?person_id=" + person_id;
+            break;
+        case "counseling":
+            url = "{{ url('admin/counseling_data') }}?person_id=" + person_id;
+            break;
+        case "aptitude":
+            url = "{{ url('admin/psychology_data') }}?person_id=" + person_id;
+            break;
+        default:
+            return; // Invalid option
+    }
+    
+    // Hide the modal
+    $("#selectionModal").modal("hide");
+    
+    // Open the URL in a new window
+    window.open(url);
+});
+
+
     oTable.on("click", ".viewDetailPDF", function() {
         const person_id = $(this).data("person_id");
         const url = "{{ url('admin/student_profile_pdf') }}?person_id=" + person_id;

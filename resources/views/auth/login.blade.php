@@ -35,6 +35,12 @@
         background: -ms-linear-gradient(-45deg, rgba(30, 29, 31, 1) 0%, rgba(223, 64, 90, 1) 100%);
         background: linear-gradient(135deg, rgba(30, 29, 31, 1) 0%, rgba(223, 64, 90, 1) 100%);
         filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1e1d1f', endColorstr='#df405a', GradientType=1);
+        background-image: url('{{ asset('assets/img/bg.jpg') }}');
+		background-size: cover;
+		background-position: center; 
+		background-repeat: no-repeat; 
+		background-attachment: fixed; 
+		min-height: 100vh;
     }
 
     /*--------------------
@@ -268,23 +274,23 @@ Form
     }
 
     .b-support {
-        border: #87314e 1px solid;
+        border: #09043e 1px solid;
         background-color: transparent;
-        color: #87314e;
+        color: #09043e;
         margin: 6px 0;
     }
 
     .b-cta {
-        border: #df405a 1px solid;
-        background-color: #df405a;
+        border: #09043e 1px solid;
+        background-color: #09043e;
         color: #fff;
     }
 
     .b-support:hover,
     .b-cta:hover {
         color: #fff;
-        background-color: #87314e;
-        border: #87314e 1px solid;
+        background-color: #09043e;
+        border: #09043e 1px solid;
     }
 
     .fieldset-body {
@@ -350,15 +356,15 @@ Form
         color: #fff;
         line-height: 40px;
         text-align: center;
-        background-color: #87314e;
-        border: 1px #87314e solid;
+        background-color: #09043e;
+        border: 1px #09043e solid;
         opacity: 1;
         cursor: pointer;
     }
 
     input[type=submit]:hover {
-        background-color: #df405a;
-        border: 1px #df405a solid;
+        background-color: #09043e;
+        border: 1px #09043e solid;
     }
 
     input[type=submit]:focus {

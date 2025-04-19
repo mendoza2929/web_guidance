@@ -312,10 +312,6 @@
                 @endforeach
             @endif
 
-            <!-- Back to Test Button -->
-            {{-- <div class="mt-4">
-                <a href="{{ route('aptitude.test') }}" class="btn btn-primary">Take Another Test</a>
-            </div> --}}
         </div>
     </div>
 </div>

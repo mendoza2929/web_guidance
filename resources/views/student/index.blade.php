@@ -264,6 +264,7 @@
         <div class="mt-5">
             <form id="studentForm" autocomplete="off">
                 <input type="hidden" name="_token" value="{{ csrf_token() }}" />
+                <input type="hidden" name="person_id" value="{{ $person_details->id }}" />
                 <!-- PERSONAL BACKGROUND SECTION -->
                             <div class="card mb-4 shadow-sm">
                                 <div class="card-header bg-primary text-white">
@@ -358,74 +359,74 @@
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label" for="studentmobileNumber">Mobile Number</label>
-                                                <input type="tel" id="studentmobileNumber" class="form-control shadow-sm rounded" pattern="[0-9]{3}[0-9]{3}[0-9]{4}"  name="student_mobile_no" id="student_mobile_no"  />
+                                                <input type="number" id="studentmobileNumber" class="form-control shadow-sm rounded" pattern="[0-9]{3}[0-9]{3}[0-9]{4}"  name="student_mobile_no" id="student_mobile_no"  />
                                             </div>
                                         </div>
                                     </div>
                         
                                     <!-- Working Student, Scholar, Single Parent Section -->
-                                    <div class="row mb-4">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Are you a working student?</label>
-                                                <div class="d-flex">
-                                                    <div class="form-check me-3">
-                                                        <input class="form-check-input" type="radio" name="workingStudent" id="workingStudentYes" value="1" />
-                                                        <label class="form-check-label" for="workingStudentYes">Yes</label>
-                                                    </div>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="workingStudent" id="workingStudentNo" value="0" />
-                                                        <label class="form-check-label" for="workingStudentNo">No</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Are you a Scholar?</label>
-                                                <div class="d-flex">
-                                                    <div class="form-check me-3">
-                                                        <input class="form-check-input" type="radio" name="scholar" id="scholarYes" value="1" />
-                                                        <label class="form-check-label" for="scholarYes">Yes</label>
-                                                    </div>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="scholar" id="scholarNo" value="0" />
-                                                        <label class="form-check-label" for="scholarNo">No</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Are you a single parent?</label>
-                                                <div class="d-flex">
-                                                    <div class="form-check me-3">
-                                                        <input class="form-check-input" type="radio" name="singleParent" id="singleParentYes" value="1" />
-                                                        <label class="form-check-label" for="singleParentYes">Yes</label>
-                                                    </div>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="singleParent" id="singleParentNo" value="0" />
-                                                        <label class="form-check-label" for="singleParentNo">No</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label" for="studentGuardian">If Yes, Who is your guardian?</label>
-                                                <input type="text" id="studentGuardian" class="form-control shadow-sm rounded" name="who_guardian" id="who_guardian" />
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label" for="studentSponsor">If Yes, Who is your sponsor?</label>
-                                                <input type="text" id="studentSponsor" class="form-control shadow-sm rounded" name="who_sponsor" id="who_sponsor" />
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label" for="studentChildren">If Yes, how many children do you have?</label>
-                                                <input type="number" id="studentChildren" class="form-control shadow-sm rounded" name="many_children" id="many_children" />
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-8">
-                                            <label class="form-label" for="studentChildren">If married,name  of husband/wife</label>
-                                                <input type="text" id="studentChildren" class="form-control shadow-sm rounded" name="married" id="married"  />
-                                        </div>
-                                    </div>
+                                    <!-- Working Student, Scholar, Single Parent Section -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="mb-3">
+            <label class="form-label">Are you a working student?</label>
+            <div class="d-flex">
+                <div class="form-check me-3">
+                    <input class="form-check-input" type="radio" name="workingStudent" id="workingStudentYes" value="1" />
+                    <label class="form-check-label" for="workingStudentYes">Yes</label>
+                </div>
+                <div class="form-check me-3">
+                    <input class="form-check-input" type="radio" name="workingStudent" id="workingStudentNo" value="0" checked />
+                    <label class="form-check-label" for="workingStudentNo">No</label>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Are you a Scholar?</label>
+            <div class="d-flex">
+                <div class="form-check me-3">
+                    <input class="form-check-input" type="radio" name="scholar" id="scholarYes" value="1" />
+                    <label class="form-check-label" for="scholarYes">Yes</label>
+                </div>
+                <div class="form-check me-3">
+                    <input class="form-check-input" type="radio" name="scholar" id="scholarNo" value="0" checked />
+                    <label class="form-check-label" for="scholarNo">No</label>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Are you a single parent?</label>
+            <div class="d-flex">
+                <div class="form-check me-3">
+                    <input class="form-check-input" type="radio" name="singleParent" id="singleParentYes" value="1" />
+                    <label class="form-check-label" for="singleParentYes">Yes</label>
+                </div>
+                <div class="form-check me-3">
+                    <input class="form-check-input" type="radio" name="singleParent" id="singleParentNo" value="0" checked />
+                    <label class="form-check-label" for="singleParentNo">No</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="mb-3">
+            <label class="form-label" for="studentGuardian">If Yes, Who is your guardian?</label>
+            <input type="text" id="studentGuardian" class="form-control shadow-sm rounded" name="who_guardian" value="N/A" disabled />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="studentSponsor">If Yes, Who is your sponsor?</label>
+            <input type="text" id="studentSponsor" class="form-control shadow-sm rounded" name="who_sponsor" value="N/A" disabled />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="studentChildren">If Yes, how many children do you have?</label>
+            <input type="number" id="studentChildren" class="form-control shadow-sm rounded" name="many_children" value="0" disabled min="0" />
+        </div>
+    </div>
+    <div class="col-md-8">
+        <label class="form-label" for="married">If married, name of husband/wife</label>
+        <input type="text" id="married" class="form-control shadow-sm rounded" name="married" />
+    </div>
+</div>
                                 </div>
                             </div>
                         
@@ -456,7 +457,14 @@
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label" for="fatherEducation">Educational Attainment</label>
-                                                <input type="text" id="fatherEducation" class="form-control shadow-sm rounded" name="father_educational" id="father_educational" />
+                                                <select name="father_educational" id="father_educational">
+                                                    <option value="Under Graduate">Under Graduate</option>
+                                                    <option value="Post Graduate">Post Graduate</option>
+                                                    <option value="Post Graduate">College</option>
+                                                    <option value="Post Graduate">High School</option>
+                                                    <option value="Post Graduate">Elementary</option>
+                                                </select>
+                                                {{-- <input type="text" id="fatherEducation" class="form-control shadow-sm rounded" name="father_educational" id="father_educational" /> --}}
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label" for="fatherOccupation">Occupation</label>
@@ -740,7 +748,8 @@ function validateForm() {
     function uploadFile(file) {
         var formData = new FormData();
         formData.append('file', file);
-
+        var personId = document.querySelector('input[name="person_id"]').value;
+        formData.append('person_id', personId);
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '{{ url("upload_image_student") }}', true);
         xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
@@ -845,6 +854,51 @@ function validateForm() {
     }
 });
         $(document).ready(function() {
+
+            function initializeForm() {
+        // Disable dependent fields by default
+        $('#studentGuardian, #studentSponsor, #studentChildren').prop('disabled', true);
+        $('#studentGuardian, #studentSponsor').val('N/A');
+        $('#studentChildren').val('0');
+    }
+
+    initializeForm();
+
+    // Working Student Radio Button Logic
+    $('input[name="workingStudent"]').change(function() {
+        if ($(this).val() === '1') { // Yes
+            $('#studentGuardian').prop('disabled', false).val('').focus();
+        } else {
+            $('#studentGuardian').prop('disabled', true).val('N/A');
+        }
+    });
+
+    // Scholar Radio Button Logic
+    $('input[name="scholar"]').change(function() {
+        if ($(this).val() === '1') { // Yes
+            $('#studentSponsor').prop('disabled', false).val('').focus();
+        } else {
+            $('#studentSponsor').prop('disabled', true).val('N/A');
+        }
+    });
+
+    // Single Parent Radio Button Logic
+    $('input[name="singleParent"]').change(function() {
+        if ($(this).val() === '1') { // Yes
+            $('#studentChildren').prop('disabled', false).val('').focus();
+        } else {
+            $('#studentChildren').prop('disabled', true).val('0');
+        }
+    });
+
+    // Number Input Validation for many_children, no_bro, no_sis, etc.
+    $('#studentChildren, #studentBrothers, #studentSister, #fatherAge, #motherAge, #fatherMobile, #motherMobile, #studentmobileNumber').on('input', function() {
+        let value = $(this).val();
+        // Allow only numbers
+        if (value !== '' && !/^\d*$/.test(value)) {
+            $(this).val(value.replace(/[^0-9]/g, ''));
+        }
+    });
            
     
             $("#submit").click(function(e) {

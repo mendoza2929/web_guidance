@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Anecdotal;
+use App\AptitudeResults;
 use App\ChatbotConversation;
 use App\Citizenship;
 use App\CivilStatus;
@@ -19,7 +20,7 @@ use App\Survey;
 use App\User;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
 use Input;
@@ -122,25 +123,55 @@ class AdminController extends Controller {
 			return response()->json($datatable);
 		}
 
-		public function chatBotData()
+		public function chatBotData(Request $request)
 		{
+			$person_id = $request->get('person_id');
+			
+			// Fetch conversation data
 			$query = ChatbotConversation::join('users', 'chatbot.user_id', '=', 'users.id')
 				->join('person', 'users.person_id', '=', 'person.id')
+				->where('person.id', $person_id)
 				->where('chatbot.response', '!=', "Hello! I'm GOLink, your **AI Agent** here to help with school concerns. How can I assist you?")
 				->orderBy('chatbot.created_at', 'asc')
-				->select('person.id as person_id', 'first_name', 'middle_name', 'last_name', 'chatbot.response');
-
-			$students = $query->get();
-
-			$datatable = $students->map(function ($student) {
-				$fullName = $student->first_name . ' ' . $student->middle_name . ' ' . $student->last_name;
-				return [
-					'name' => $fullName,
-					'response' => $student->response,
-				];
-			});
-
-			return response()->json($datatable);
+				->select(
+					'person.id as person_id',
+					'first_name',
+					'middle_name',
+					'last_name',
+					'chatbot.response',
+					'chatbot.created_at'
+				);
+	
+			$conversationsRaw = $query->get();
+	
+			// Structure conversation data (replace flatMap)
+			$conversations = [];
+			foreach ($conversationsRaw as $item) {
+				$fullName = trim($item->first_name . ' ' . $item->middle_name . ' ' . $item->last_name);
+				$timestamp = $item->created_at->format('F j Y');
+				
+				// Add student message if it exists
+				if (!empty($item->response)) {
+					$conversations[] = [
+						'type' => 'student',
+						'message' => $item->response,
+						'sender' => $fullName,
+						'timestamp' => $timestamp,
+					];
+				}
+				
+				// Add AI response if it exists
+				if (!empty($item->response)) {
+					$conversations[] = [
+						'type' => 'ai',
+						'message' => $item->response,
+						'sender' => 'GOLink AI',
+						'timestamp' => $timestamp,
+					];
+				}
+			}
+	
+			return view('admin.chatbot', compact('conversations'));
 		}
 
 		public function getStudentProfilePdf()
@@ -301,8 +332,146 @@ class AdminController extends Controller {
 
 	public function psychologyData()
 	{
-		return view('admin.psychologyData');
+	
+	$person_id = \Request::get('person_id');
+    $user = Student::where('id',$person_id)->first();
+    $classification_id = $user->classification_id;
+    $classification_level_id = $user->classification_level_id;
+	// dd($person_id);
+    // Fetch the user's test results
+    $results = AptitudeResults::where('student_id', $user->id)
+        ->join('aptitude_question', 'aptitude_results.question_id', '=', 'aptitude_question.id')
+        ->join('aptitude_choices as user_answer', 'aptitude_results.answer_id', '=', 'user_answer.id')
+        ->leftJoin('aptitude_choices as correct_answer', function ($join) {
+            $join->on('aptitude_results.question_id', '=', 'correct_answer.question_id')
+                 ->where('correct_answer.is_correct', '=', 1);
+        })
+        ->select(
+            'aptitude_question.question',
+            'user_answer.choices as user_answer',
+            'correct_answer.choices as correct_answer',
+            'aptitude_results.is_correct'
+        )
+        ->orderBy('aptitude_results.created_at', 'asc')
+        ->get();
+
+		if ($results->isEmpty()) {
+			return view('admin.psychologyData', [
+				'results' => $results,
+				'message' => 'This student has not yet taken the aptitude test.',
+				'totalQuestions' => 0,
+				'correctAnswers' => 0,
+				'incorrectAnswers' => 0,
+				'scorePercentage' => 0,
+				'feedback' => 'No feedback available. Please take the test first.',
+			]);
+		}
+
+    $totalQuestions = $results->count();
+    $correctAnswers = $results->where('is_correct', 1)->count();
+    $incorrectAnswers = $totalQuestions - $correctAnswers;
+    $scorePercentage = $totalQuestions > 0 ? ($correctAnswers / $totalQuestions) * 100 : 0;
+
+    // Determine feedback based on classification_id and classification_level_id
+    $feedback = $this->getFeedback($scorePercentage, $classification_id, $classification_level_id);
+
+    return view('admin.psychologyData', [
+        'results' => $results,
+        'totalQuestions' => $totalQuestions,
+        'correctAnswers' => $correctAnswers,
+        'incorrectAnswers' => $incorrectAnswers,
+        'scorePercentage' => $scorePercentage,
+        'feedback' => $feedback,
+    ]);
+
+
+
+
+		// return view('admin.psychologyData');
 	}
+
+	private function getFeedback($scorePercentage, $classification_id, $classification_level_id)
+{
+    // Classification_id = 1
+    if ($classification_id == 1) {
+        if (in_array($classification_level_id, [1, 2, 3])) {
+            if ($scorePercentage >= 90) {
+                return "Excellent; strong foundational grasp";
+            } elseif ($scorePercentage >= 70) {
+                return "Good; growing core skills";
+            } elseif ($scorePercentage >= 50) {
+                return "Needs help; review basic understanding";
+            } else {
+                return "Struggling; intensive support needed";
+            }
+        } elseif (in_array($classification_level_id, [4, 5, 6])) {
+            if ($scorePercentage >= 90) {
+                return "Advanced; ready for higher challenges";
+            } elseif ($scorePercentage >= 70) {
+                return "On track; age-appropriate skills";
+            } elseif ($scorePercentage >= 50) {
+                return "Needs support; improve basic concepts";
+            } else {
+                return "Below level; focused help needed";
+            }
+        }
+    }
+
+    // Classification_id = 2
+    if ($classification_id == 2) {
+        if (in_array($classification_level_id, [7, 8])) {
+            if ($scorePercentage >= 90) {
+                return "Excellent; shows high aptitude";
+            } elseif ($scorePercentage >= 70) {
+                return "Good; stable performance";
+            } elseif ($scorePercentage >= 50) {
+                return "Average; needs reinforcement in skills";
+            } else {
+                return "Struggling; foundational support required";
+            }
+        } elseif (in_array($classification_level_id, [9, 10])) {
+            if ($scorePercentage >= 90) {
+                return "Strong; well-prepared for upper high school";
+            } elseif ($scorePercentage >= 70) {
+                return "Solid; good understanding of concepts";
+            } elseif ($scorePercentage >= 50) {
+                return "Fair; needs more practice in problem solving";
+            } else {
+                return "Learning gaps present; tutoring recommended";
+            }
+        }
+    }
+
+    // Classification_id = 11, 12
+    if (in_array($classification_id, [11, 12])) {
+        if ($scorePercentage >= 90) {
+            return "Advanced; handles complex tasks effectively";
+        } elseif ($scorePercentage >= 70) {
+            return "Proficient; prepared for academic progression";
+        } elseif ($scorePercentage >= 50) {
+            return "Developing; requires academic support";
+        } else {
+            return "At risk; needs intervention and review";
+        }
+    }
+
+    // Classification_id = 13, 14, 15
+    if (in_array($classification_id, [13, 14, 15])) {
+        if ($scorePercentage >= 90) {
+            return "Excellent aptitude; ready for higher academics or employment";
+        } elseif ($scorePercentage >= 70) {
+            return "Above average; minor improvements needed";
+        } elseif ($scorePercentage >= 50) {
+            return "Average; needs reinforcement in math or logic";
+        } else {
+            return "Weak aptitude; core concepts need review";
+        }
+    }
+
+    // Default feedback if no specific match
+    return "Score: " . number_format($scorePercentage, 2) . "% - Please consult your instructor for feedback.";
+}
+
 
 	public function uploadImageAnecdotal()
 	{
@@ -504,8 +673,8 @@ class AdminController extends Controller {
 							class="viewDetail">'.$fullName.'</a>',
 				'classification' => $student->classification_name,
 				'level' => $student->level,
-				'img' => $student->img ? '<a href="#" class="viewImage" data-img="'.$imagePath.'">'.basename($student->img).'</a>' : '',
-				'summary' => $student->summary,
+				//'img' => $student->img ? '<a href="#" class="viewImage" data-img="'.$imagePath.'">'.basename($student->img).'</a>' : '',
+				//'summary' => $student->summary,
 			];
 		});
 

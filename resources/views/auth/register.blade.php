@@ -398,7 +398,7 @@ function togglePassword(inputId, icon) {
             $('#school_department_id').empty().append('<option value="">Select School Department</option>');
         }
     });
-    $("#saveStudentBtn").click(function(){
+$("#saveStudentBtn").click(function(){
     const formData = new FormData(document.getElementById('createStudentForm'));
     formData.append('role', 'student'); 
 

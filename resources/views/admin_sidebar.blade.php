@@ -12,7 +12,7 @@
           <a class="nav-link {{ Request::is('admin/index') ? 'active' : '' }}" href="{{URL::to('admin/index')}}" role="button">
             <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fas fa-calendar"></span></span><span class="nav-link-text ps-1">Student Records</span></div>
           </a>
-          <a class="nav-link {{ Request::is('admin/chatbot') ? 'active' : '' }}" href="{{URL::to('admin/chatbot')}}" role="button">
+          {{-- <a class="nav-link {{ Request::is('admin/chatbot') ? 'active' : '' }}" href="{{URL::to('admin/chatbot')}}" role="button">
             <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fas fa-calendar"></span></span><span class="nav-link-text ps-1">Chat Bot</span></div>
           </a>
           <a class="nav-link {{ Request::is('admin/anecdotal') ? 'active' : '' }}" href="{{URL::to('admin/anecdotal')}}" role="button">
@@ -22,12 +22,15 @@
             <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fas fa-calendar"></span></span><span class="nav-link-text ps-1">Counseling</span></div>
           </a>
           <a class="nav-link {{ Request::is('admin/psychology') ? 'active' : '' }}" href="{{URL::to('admin/psychology')}}" role="button">
-            <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fas fa-calendar"></span></span><span class="nav-link-text ps-1">Psychology Test</span></div>
-          </a>
+            <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fas fa-calendar"></span></span><span class="nav-link-text ps-1">Aptitude Result</span></div>
+          </a> --}}
           {{-- <a class="nav-link {{ Request::is('upload_image_file') ? 'active' : '' }}" href="{{URL::to('upload_image_file')}}" role="button">
             <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fas fa-calendar"></span></span><span class="nav-link-text ps-1">Upload Image</span></div>
           </a>
           <a class="nav-link {{ Request::is('admin/import') ? 'active' : '' }}" href="{{URL::to('admin/import')}}" role="button">
+            <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fas fa-calendar"></span></span><span class="nav-link-text ps-1">Import</span></div>
+          </a> --}}
+          {{-- <a class="nav-link {{ Request::is('admin/import') ? 'active' : '' }}" href="{{URL::to('admin/import')}}" role="button">
             <div class="d-flex align-items-center"><span class="nav-link-icon"><span class="fas fa-calendar"></span></span><span class="nav-link-text ps-1">Import</span></div>
           </a> --}}
         </li>

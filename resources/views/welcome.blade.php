@@ -74,6 +74,8 @@
 
     body { font-family: Arial, sans-serif; }
 
+   
+
 /* Floating Chat Button */
 .chat-icon {
     position: fixed;
@@ -199,7 +201,7 @@
         <!-- Uncomment the line below if you also wish to use an image logo -->
         <!-- <img src="assets/img/logo.png" alt=""> -->
       <div>
-		  <img src="{{asset('assets/img/gallery/logo.png')}}" alt="" width="300px" class="img-fluid logo-image">
+		  <img src="{{asset('assets/img/golink.png')}}" alt="" width="300px" class="img-fluid logo-image">
 	  </div>
       </a>
 
@@ -227,56 +229,21 @@
 
     <!-- Hero Section -->
     <section id="hero" class="hero section dark-background">
-      <img src="assets/img/hero-bg-2.jpg" alt="" class="hero-bg">
+      <img src="assets/img/bg.jpg" alt="" class="hero-bg">
       <div class="container">
         <div class="row gy-4 justify-content-between">
           <div class="col-lg-4 order-lg-last hero-img" data-aos="zoom-out" data-aos-delay="100">
-            <img src="assets/img/hero-img.png" class=" img-fluid animated" alt="" ;>
+            {{-- <img src="assets/img/hero-img.png" class=" img-fluid animated" alt="" ;> --}}
 
           </div>
 
        
           <div class="col-lg-6  d-flex flex-column justify-content-center" data-aos="fade-in">
-            <h1>GOLink</h1>
+            {{-- <h1>GOLink</h1> --}}
             <p>A WEB-BASED SYSTEM FOR GUIDANCE OFFICE ACCUMULATIVE RECORDS AND AUTOMATED PRINT MANAGEMENT AT ANDRES SORIANO COLLEGES OF BISLIG, INCs</p>
             <div class="d-flex">
               <input type="hidden" name="_token" value="{{{ csrf_token() }}}" />
-              {{-- <div class="chat-icon" id="chat-icon">💬</div> --}}
-
-              <!-- Chat Popup -->
-              {{-- <div class="chat-container" id="chat-container">
-                <div class="chat-header">
-                    Chatbot
-                    <span class="close-btn" id="close-btn">&times;</span>
-                </div>
-                <div class="chat-box" id="chat-box"></div>
-            
-                <!-- FAQ Section -->
-                <div class="faq-list">
-                  <p><strong>Common Student Concerns:</strong></p>
-                  <select id="faq-select">
-                      <option value="">-- Select a concern --</option>
-                      <option value="I feel stressed with schoolwork.">I feel stressed with schoolwork.</option>
-                      <option value="I have trouble focusing on studies.">I have trouble focusing on studies.</option>
-                      <option value="I am feeling anxious or sad.">I am feeling anxious or sad.</option>
-                      <option value="I am struggling with time management.">I am struggling with time management.</option>
-                      <option value="I have issues with my classmates.">I have issues with my classmates.</option>
-                      <option value="I need advice on career choices.">I need advice on career choices.</option>
-                      <option value="I want to talk to a real counselor.">I want to talk to a real counselor.</option>
-                      <option value="I have family problems.">I have family problems.</option>
-                  </select>
-              </div>
-              
-              
-            
-                <form id="chatBotForm">
-                    <input type="hidden" name="_token" value="{{ csrf_token() }}" />
-                    <div class="chat-input">
-                        <input type="text" id="user-input" name="question" placeholder="Type a message..." autocomplete="off">
-                        <button type="submit" id="send-btn">Send</button>
-                    </div>
-                </form>
-            </div> --}}
+          
             
             </div>
           </div>
@@ -284,22 +251,8 @@
         </div>
       </div>
 
-      <svg class="hero-waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28 " preserveAspectRatio="none">
-        <defs>
-          <path id="wave-path" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z"></path>
-        </defs>
-        <g class="wave1">
-          <use xlink:href="#wave-path" x="50" y="3"></use>
-        </g>
-        <g class="wave2">
-          <use xlink:href="#wave-path" x="50" y="0"></use>
-        </g>
-        <g class="wave3">
-          <use xlink:href="#wave-path" x="50" y="9"></use>
-        </g>
-      </svg>
 
-    </section><!-- /Hero Section -->
+    </section>
 
 
 
